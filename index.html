@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>研发加计扣除 — 项目信息管理</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--c:#4f6ef7;--cl:#eef2ff;--cd:#3b54c4;--ok:#22c55e;--warn:#f59e0b;--err:#ef4444;--g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g300:#d1d5db;--g400:#9ca3af;--g500:#6b7280;--g600:#4b5563;--g700:#374151;--g800:#1f2937;--r:8px}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--g100);color:var(--g800);font-size:13px;line-height:1.6}
+.top{position:fixed;top:0;left:0;right:0;height:48px;background:#fff;border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:100}
+.top-l{display:flex;align-items:center;gap:20px}
+.top-logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--g800)}
+.top-nav{display:flex;align-items:center;gap:2px}
+.top-nav a{padding:6px 14px;font-size:13px;color:var(--g600);cursor:pointer;border-radius:6px;text-decoration:none}
+.top-nav a:hover{color:var(--c);background:var(--cl)}
+.top-nav a.on{color:var(--c);background:var(--cl);font-weight:600}
+.top-sep{color:var(--g200);margin:0 2px}
+.top-r{display:flex;align-items:center;gap:12px}
+.top-search{display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--g200);border-radius:8px;color:var(--g400);font-size:12px;min-width:180px}
+.top-icon{width:30px;height:30px;border-radius:6px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--g500)}
+.top-icon:hover{background:var(--cl);color:var(--c)}
+.top-user{display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 8px;border-radius:6px}
+.top-user:hover{background:var(--cl)}
+.top-av{width:28px;height:28px;border-radius:50%;background:var(--c);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+.app-bar{position:fixed;top:48px;left:0;right:0;height:42px;background:#fff;border-bottom:1px solid var(--g200);display:flex;align-items:center;padding:0 20px;z-index:99}
+.app-bar .app-name{font-size:14px;font-weight:600;color:var(--g700);display:flex;align-items:center;gap:6px}
+.app-bar .dot{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.app-bar .app-desc{margin-left:12px;font-size:12px;color:var(--g400)}
+.side{position:fixed;top:90px;left:0;bottom:0;width:200px;background:#fff;border-right:1px solid var(--g200);overflow-y:auto;z-index:50}
+.side-mod{padding:6px 0}
+.side-mod-title{font-size:11px;color:var(--g400);padding:10px 14px 4px;font-weight:600}
+.side-item{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;color:var(--g600);font-size:13px;transition:.15s;border-left:3px solid transparent}
+.side-item:hover{background:var(--cl);color:var(--c)}
+.side-item.on{background:var(--cl);color:var(--c);border-left-color:var(--c);font-weight:600}
+.side-item .si-dot{width:5px;height:5px;border-radius:50%;background:var(--g300);flex-shrink:0}
+.side-item.on .si-dot{background:var(--c)}
+.side-item .si-badge{margin-left:auto;font-size:10px;background:var(--g100);color:var(--g400);padding:1px 5px;border-radius:8px}
+.side-item.on .si-badge{background:var(--cl);color:var(--c)}
+.side-item.disabled{color:var(--g300);cursor:not-allowed}
+.side-item.disabled:hover{background:none;color:var(--g300)}
+.mn{margin-left:200px;margin-top:90px;padding:18px 22px;min-height:calc(100vh - 90px)}
+.pg{display:none}.pg.on{display:block}
+.cd{background:#fff;border:1px solid var(--g200);border-radius:var(--r);margin-bottom:16px}
+.cd-h{padding:12px 16px;border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between;min-height:44px}
+.cd-h h3{font-size:14px;font-weight:600}.cd-h .sub{font-size:12px;color:var(--g400);margin-left:8px;font-weight:400}
+.cd-b{padding:16px}
+.qf{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+.fg{display:flex;flex-direction:column;gap:3px}
+.fg label{font-size:11px;color:var(--g500);font-weight:500}
+.fg label .req{color:var(--err)}
+.fg input,.fg select,.fg textarea{height:30px;padding:0 8px;border:1px solid var(--g300);border-radius:6px;font-size:12px;color:var(--g700);background:#fff;min-width:120px;font-family:inherit}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--c);box-shadow:0 0 0 2px rgba(79,110,247,.1)}
+.fg textarea{height:auto;padding:6px 8px;resize:vertical;min-height:50px}
+.fg .ro-green{background:#e8f5e9;color:#2e7d32;cursor:default}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;height:30px;padding:0 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:.15s;white-space:nowrap}
+.btn-p{background:var(--c);color:#fff}.btn-p:hover{background:var(--cd)}
+.btn-o{background:#fff;color:var(--g600);border-color:var(--g300)}.btn-o:hover{background:var(--g50)}
+.btn-sm{height:26px;padding:0 8px;font-size:11px}
+.bg{display:flex;gap:6px;flex-wrap:wrap}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{padding:8px 10px;text-align:left;font-weight:600;color:var(--g600);background:var(--g50);border-bottom:2px solid var(--g200);white-space:nowrap;position:sticky;top:0}
+tbody td{padding:7px 10px;border-bottom:1px solid var(--g100);white-space:nowrap}
+tbody tr:hover td{background:#fafbff}
+tbody tr:nth-child(even) td{background:var(--g50)}
+.t{display:inline-block;padding:1px 6px;border-radius:3px;font-size:11px;font-weight:500}
+.t-r{background:#fff0f0;color:#d32f2f}.t-b{background:#dbeafe;color:#1d4ed8}.t-g{background:#dcfce7;color:#166534}
+.t-y{background:#fef3c7;color:#92400e}.t-x{background:var(--g100);color:var(--g500)}.t-p{background:#f3e8ff;color:#6b21a8}
+.t-a{background:#e8f5e9;color:#2e7d32}.t-c{background:#fff3e0;color:#e65100}
+.tabs{display:flex;border-bottom:2px solid var(--g200);margin-bottom:14px}
+.tb{padding:8px 16px;cursor:pointer;font-size:13px;color:var(--g400);border-bottom:2px solid transparent;margin-bottom:-2px}
+.tb:hover{color:var(--c)}.tb.on{color:var(--c);border-bottom-color:var(--c);font-weight:600}
+.tp{display:none}.tp.on{display:block}
+.fg2{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px 20px;margin-bottom:14px}
+.sec{font-size:13px;font-weight:600;color:var(--g700);margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--g200);display:flex;align-items:center;gap:6px}
+.sec::before{content:'';width:3px;height:14px;border-radius:2px;background:var(--c)}
+.nt{background:#fffde7;border:1px solid #ffe082;border-radius:var(--r);padding:8px 12px;margin:8px 0;font-size:12px;color:#7c6c00}
+.rc{background:#f0f9ff;border:1px solid #bae6fd;border-radius:var(--r);padding:8px 12px;margin:6px 0;font-size:12px;color:#0369a1}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;justify-content:center;align-items:flex-start;padding:30px 20px;overflow-y:auto}
+.mo.on{display:flex}
+.ml{background:#fff;border-radius:12px;width:100%;max-width:1080px;box-shadow:0 16px 48px rgba(0,0,0,.18);animation:su .2s ease}
+@keyframes su{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.ml-h{padding:14px 20px;border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between}
+.ml-h h3{font-size:15px;font-weight:600}
+.ml-x{width:28px;height:28px;border-radius:6px;border:none;background:none;cursor:pointer;font-size:18px;color:var(--g400);display:flex;align-items:center;justify-content:center}
+.ml-x:hover{background:var(--g100);color:var(--g700)}
+.ml-b{padding:20px;max-height:72vh;overflow-y:auto}
+.ml-f{padding:12px 20px;border-top:1px solid var(--g200);display:flex;justify-content:flex-end;gap:8px}
+
+.del-row{color:var(--err);cursor:pointer;font-size:12px;padding:2px 6px;border-radius:4px;border:1px solid #fecaca;background:#fff5f5}
+.del-row:hover{background:#fee2e2}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-l">
+    <div class="top-logo">
+      <svg width="26" height="26" viewBox="0 0 28 28"><circle cx="14" cy="14" r="13" fill="#4f6ef7"/><path d="M8 14 L12 10 L16 14 L12 18 Z" fill="#fff"/></svg>
+      税务管理
+    </div>
+    <nav class="top-nav">
+      <a>工作台</a><span class="top-sep">|</span>
+      <a>平台管理</a><a class="on">业务中心</a><a>数据中心</a>
+    </nav>
+  </div>
+  <div class="top-r">
+    <div class="top-search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      搜索应用、菜单名称
+    </div>
+    <button class="top-icon" title="AI"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c)" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></button>
+    <button class="top-icon" title="通知"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
+    <button class="top-icon" title="设置"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg></button>
+    <div class="top-user"><div class="top-av">超</div><span style="font-size:12px;color:var(--g700)">bosssadm01</span></div>
+  </div>
+</div>
+
+<div class="app-bar">
+  <div class="app-name"><span class="dot"></span>研发加计扣除</div>
+  <div class="app-desc">研发费用加计扣除管理 · 项目全生命周期管理与费用归集</div>
+</div>
+
+<div class="side">
+  <div class="side-mod">
+    <div class="side-mod-title">项目信息管理</div>
+    <div class="side-item on" data-p="p1" id="nav_p1"><span class="si-dot"></span>项目信息<span class="si-badge">核心</span></div>
+    <div class="side-item" data-p="p2" id="nav_p2"><span class="si-dot"></span>人员信息</div>
+    <div class="side-item" data-p="p3" id="nav_p3"><span class="si-dot"></span>资产信息</div>
+    <div class="side-item" data-p="p4" id="nav_p4"><span class="si-dot"></span>组织信息</div>
+    <div class="side-item" data-p="p5" id="nav_p5"><span class="si-dot"></span>档案信息</div>
+    <!-- <div class="side-item" data-p="p6" id="nav_p6"><span class="si-dot"></span>摊销管理</div> -->
+  </div>
+  <div class="side-mod" style="border-top:1px solid var(--g200);margin-top:4px">
+    <div class="side-mod-title">辅助账管理</div>
+    <div class="side-item disabled"><span class="si-dot"></span>账簿管理</div>
+    <div class="side-item disabled"><span class="si-dot"></span>费用归集计算</div>
+    <div class="side-item disabled"><span class="si-dot"></span>辅助账生成</div>
+  </div>
+  <div class="side-mod" style="border-top:1px solid var(--g200);margin-top:4px">
+    <div class="side-mod-title">基础配置</div>
+    <div class="side-item disabled"><span class="si-dot"></span>标准科目映射</div>
+    <div class="side-item disabled"><span class="si-dot"></span>分摊规则</div>
+    <div class="side-item disabled"><span class="si-dot"></span>限额规则</div>
+  </div>
+</div>
+<div class="mn">
+
+<!-- p1: 研发项目信息 -->
+<div class="pg on" id="p1">
+<div class="cd"><div class="cd-h"><h3>查询条件</h3></div>
+<div class="cd-b"><div class="qf">
+<div class="fg"><label>公司名称</label><input id="q_pco" placeholder="模糊搜索"></div>
+<div class="fg"><label>项目编码</label><input id="q_pid" placeholder="模糊搜索"></div>
+<div class="fg"><label>项目名称</label><input id="q_pn" placeholder="模糊搜索"></div>
+<div class="fg"><label>技术领域</label><select><option value="">全部</option><option>电子信息</option><option>生物医药</option><option>新材料</option><option>先进制造</option><option>新能源</option><option>资源环境</option></select></div>
+<div class="fg"><label>项目状态</label><select id="q_ps"><option value="">全部</option><option>已立项</option><option>研发中</option><option>已结项</option></select></div><div class="fg"><label>结转状态</label><select id="q_ts"><option value="">全部</option><option>未结转</option><option>已结转</option><option>无需结转</option></select></div>
+<div class="fg"><label>支出类型</label><select id="q_pt"><option value="">全部</option><option>费用化</option><option>资本化</option><option>混合型</option></select></div>
+<div class="fg"><label>组织形式</label><select><option value="">全部</option><option>自主研发</option><option>委托研发</option><option>合作研发</option><option>集中研发</option></select></div>
+<div class="fg"><label>项目来源</label><select><option value="">全部</option><option>自选项目</option><option>政府科技项目</option><option>外部委托项目</option><option>境外项目</option><option>其他项目</option></select></div>
+<div class="fg" style="flex-direction:row;gap:6px;align-items:flex-end"><button class="btn btn-p" onclick="filterProj()">🔍 查询</button><button class="btn btn-o" onclick="resetProj()">↻ 重置</button></div>
+</div></div></div>
+<div class="cd"><div class="cd-h"><h3>项目列表</h3>
+<div class="bg"><button class="btn btn-p" onclick="openProj()">+ 新增项目</button><button class="btn btn-o">📤 导出</button></div></div>
+<div class="cd-b" style="padding:0"><div class="tw"><table><thead><tr>
+<th>公司名称</th><th>项目编号</th><th>项目名称</th><th>技术领域</th><th>项目状态</th><th>支出类型</th><th>组织形式</th><th>项目总预算(万)</th><th>项目实际支出(万)</th><th>项目开始日期</th><th>项目结束日期</th><th>完成情况</th><th>项目来源</th><th>资本化阶段</th><!-- <th>辅助账状态</th> --><th>结转状态</th><th>操作</th>
+</tr></thead><tbody id="projTb"></tbody></table></div></div></div>
+</div>
+
+<!-- p2: 研发人员信息 -->
+<div class="pg" id="p2">
+<div class="cd"><div class="cd-h"><h3>查询条件</h3></div>
+<div class="cd-b"><div class="qf">
+<div class="fg"><label>公司名称</label><input id="q_pcoco" placeholder="模糊搜索"></div>
+<div class="fg"><label>工号</label><input id="q_ppid" placeholder="模糊搜索"></div>
+<div class="fg"><label>姓名</label><input id="q_pna" placeholder="模糊搜索"></div>
+<div class="fg"><label>用工类别</label><select id="q_put"><option value="">全部</option><option>正式员工</option><option>劳务派遣</option><option>兼职</option></select></div>
+<div class="fg"><label>任职期间</label><input placeholder="开始 ~ 结束" style="min-width:150px"></div>
+<div class="fg" style="flex-direction:row;gap:6px;align-items:flex-end"><button class="btn btn-p" onclick="filterPerson()">🔍 查询</button><button class="btn btn-o" onclick="resetPerson()">↻ 重置</button></div>
+</div></div></div>
+<div class="cd"><div class="cd-h"><h3>人员列表</h3>
+<div class="bg"><button class="btn btn-p" onclick="openPerson()">+ 新增人员</button><button class="btn btn-o" onclick="openImport('person')">📥 导入</button><button class="btn btn-o">📤 导出</button></div></div>
+<div class="cd-b" style="padding:0"><div class="tw"><table><thead><tr>
+<th>公司名称</th><th>工号</th><th>姓名</th><th>性别</th><th>身份证号</th><th>学历</th><th>专业</th><th>职称名称</th><th>职称类别</th><th>职务</th><th>用工类别</th><th>任职期起</th><th>任职期止</th><th>备注</th><th>操作</th>
+</tr></thead><tbody id="personTb"></tbody></table></div></div></div>
+</div>
+
+<!-- p3: 研发资产信息 -->
+<div class="pg" id="p3">
+<div class="cd"><div class="cd-h"><h3>查询条件</h3></div>
+<div class="cd-b"><div class="qf">
+<div class="fg"><label>公司名称</label><input id="q_aco" placeholder="模糊搜索"></div>
+<div class="fg"><label>资产编号</label><input placeholder="模糊搜索"></div>
+<div class="fg"><label>资产名称</label><input placeholder="模糊搜索"></div>
+<div class="fg"><label>资产类别一级</label><select id="q_al1" onchange="filterAssetL2()"><option value="">全部</option><option>固定资产</option><option>无形资产</option></select></div>
+<div class="fg"><label>资产类别二级</label><select id="q_al2"><option value="">全部</option></select></div>
+<div class="fg"><label>税会折旧差异</label><select><option value="">全部</option><option>是</option><option>否</option></select></div>
+<div class="fg" style="flex-direction:row;gap:6px;align-items:flex-end"><button class="btn btn-p" onclick="filterAsset()">🔍 查询</button><button class="btn btn-o" onclick="resetAsset()">↻ 重置</button></div>
+</div></div></div>
+<div class="cd"><div class="cd-h"><h3>资产列表</h3>
+<div class="bg"><button class="btn btn-p" onclick="openAsset()">+ 新增资产</button><button class="btn btn-o" onclick="openImport('asset')">📥 导入</button><button class="btn btn-o">📤 导出</button></div></div>
+<div class="cd-b" style="padding:0"><div class="tw"><table><thead><tr>
+<th>公司名称</th><th>资产编号</th><th>资产名称</th><th>规格型号</th><th>类别一级</th><th>类别二级</th><th>取得方式</th><th>研发项目编码</th><th>使用部门</th><th>使用状态</th><th>会计原值</th><th>残值率</th><th>折旧年限</th><th>折旧方法</th><th>开始使用日期</th><th>税会差异</th><th>用途分类</th><th>备注</th><th>操作</th>
+</tr></thead><tbody id="assetTb"></tbody></table></div></div></div>
+</div>
+
+<!-- p4: 研发组织信息 -->
+<div class="pg" id="p4">
+<div class="cd"><div class="cd-h"><h3>查询条件</h3></div>
+<div class="cd-b"><div class="qf">
+<div class="fg"><label>公司名称</label><input id="q_ococo" placeholder="模糊搜索"></div>
+<div class="fg"><label>组织编号</label><input placeholder="模糊搜索"></div>
+<div class="fg"><label>组织名称</label><input placeholder="模糊搜索"></div>
+<div class="fg"><label>组织类型</label><select><option value="">全部</option><option>研究机构</option><option>高等学校</option><option>企业单位</option><option>个人</option></select></div>
+<div class="fg"><label>国别类型</label><select><option value="">全部</option><option>境内</option><option>境外</option></select></div>
+<div class="fg"><label>关联关系</label><select><option value="">全部</option><option>关联方</option><option>非关联方</option></select></div>
+<div class="fg" style="flex-direction:row;gap:6px;align-items:flex-end"><button class="btn btn-p" onclick="filterOrg()">🔍 查询</button><button class="btn btn-o" onclick="resetOrg()">↻ 重置</button></div>
+</div></div></div>
+<div class="cd"><div class="cd-h"><h3>组织列表</h3>
+<div class="bg"><button class="btn btn-p" onclick="openOrg()">+ 新增组织</button><button class="btn btn-o" onclick="openImport('org')">📥 导入</button><button class="btn btn-o">📤 导出</button></div></div>
+<div class="cd-b" style="padding:0"><div class="tw"><table><thead><tr>
+<th>公司名称</th><th>组织编号</th><th>组织名称</th><th>证件号码</th><th>组织类型</th><th>国别类型</th><th>关联关系</th><th>备注</th><th>操作</th>
+</tr></thead><tbody id="orgTb"></tbody></table></div></div></div>
+<div class="nt">本表记录与研发活动相关的合作方、受托方、或集团成员单位的组织信息。组织信息被研发项目信息中的"项目参与组织"子表关联引用。</div>
+</div>
+
+<!-- p5: 研发档案信息 -->
+<div class="pg" id="p5">
+<div class="cd"><div class="cd-h"><h3>查询条件</h3></div>
+<div class="cd-b"><div class="qf">
+<div class="fg"><label>公司名称</label><input id="q_arcoco" placeholder="模糊搜索"></div>
+<div class="fg"><label>档案编号</label><input placeholder="模糊搜索"></div>
+<div class="fg"><label>档案名称</label><input placeholder="模糊搜索"></div>
+<div class="fg"><label>档案类别大类</label><select id="q_abig" onchange="filterArchSmall()"><option value="">全部</option><option>项目立项</option><option>项目过程</option><option>项目核算</option><option>项目结题</option><option>政府监管</option></select></div>
+<div class="fg"><label>档案类别小类</label><select id="q_asmall"><option value="">全部</option></select></div>
+<div class="fg"><label>项目编号</label><input placeholder="关联项目"></div>
+<div class="fg"><label>档案日期</label><input placeholder="开始 ~ 结束" style="min-width:150px"></div>
+<div class="fg"><label>档案用途</label><select><option value="">全部</option><option>加计扣除</option><option>高企认定</option><option>IPO</option><option>其他</option></select></div>
+<div class="fg"><label>保密等级</label><select><option value="">全部</option><option>普通</option><option>内部</option><option>机密</option></select></div>
+<div class="fg" style="flex-direction:row;gap:6px;align-items:flex-end"><button class="btn btn-p" onclick="filterArch()">🔍 查询</button><button class="btn btn-o" onclick="resetArch()">↻ 重置</button></div>
+</div></div></div>
+<div class="cd"><div class="cd-h"><h3>档案列表</h3>
+<div class="bg"><button class="btn btn-p" onclick="openArch()">+ 新增档案</button><button class="btn btn-o">📤 导出</button></div></div>
+<div class="cd-b" style="padding:0"><div class="tw"><table><thead><tr>
+<th>公司名称</th><th>档案编号</th><th>档案名称</th><th>大类</th><th>小类</th><th>源文件编号</th><th>档案日期</th><th>关联项目</th><th>来源部门</th><th>附件</th><th>档案用途</th><th>介质</th><th>保密等级</th><th>归档人</th><th>归档日期</th><th>创建方式</th><th>操作</th>
+</tr></thead><tbody id="archTb"></tbody></table></div></div></div>
+</div>
+
+
+<!-- p6: 摊销管理 (已隐藏) -->
+<!--
+<div class="pg" id="p6">
+<div class="cd"><div class="cd-h"><h3>查询条件</h3></div>
+<div class="cd-b"><div class="qf">
+<div class="fg"><label>项目编号</label><input id="q_am_proj" placeholder="模糊搜索"></div>
+<div class="fg"><label>资产编号</label><input id="q_am_aid" placeholder="模糊搜索"></div>
+<div class="fg"><label>资产名称</label><input id="q_am_name" placeholder="模糊搜索"></div>
+<div class="fg"><label>摊销状态</label><select id="q_am_status"><option value="">全部</option><option>摊销中</option><option>已摊销完</option><option>已终止</option></select></div>
+<div class="fg" style="flex-direction:row;gap:6px;align-items:flex-end"><button class="btn btn-p" onclick="renderAmort(amortPageData)">🔍 查询</button><button class="btn btn-o" onclick="resetAmort()">↻ 重置</button></div>
+</div></div></div>
+<div class="cd"><div class="cd-h"><h3>摊销列表</h3>
+<div class="bg"><button class="btn btn-o">📤 导出</button></div></div>
+<div class="cd-b" style="padding:0"><div class="tw"><table><thead><tr>
+<th>项目编号</th><th>资产编号</th><th>资产名称</th><th>规格型号</th><th>资产类别一级</th><th>资产类别二级</th><th>使用部门</th><th>使用状态</th><th>开始使用日期</th><th>税务摊销期限（月）</th><th>会计原值</th><th>加计扣除原值</th><th>残值率</th><th>税务摊销方法</th><th>备注</th><th>操作</th>
+</tr></thead><tbody id="amortTb"></tbody></table></div></div></div>
+</div>
+</div>
+-->
+
+<!-- 项目详情弹窗 -->
+<div class="mo" id="moProj"><div class="ml">
+<div class="ml-h"><h3 id="projTitle">新增项目</h3><button class="ml-x" onclick="closeMo('moProj')">✕</button></div>
+<div class="ml-b">
+<div class="tabs"><div class="tb on" onclick="stab(this,'t1')">基础信息</div><div class="tb" onclick="stab(this,'t2')">项目参与人员</div><div class="tb" onclick="stab(this,'t3')">项目使用资产</div><div class="tb" onclick="stab(this,'t4')">项目参与组织</div><div class="tb" onclick="stab(this,'t5')">项目备查资料</div></div>
+
+<div class="tp on" id="t1">
+<div class="sec">项目基本信息</div><div class="fg2">
+<div class="fg"><label><span class="req">*</span>公司名称</label><select id="f_pco"><option value="">请选择</option><option>海洋科技</option><option>海洋智税集团</option></select></div>
+<div class="fg"><label><span class="req">*</span>项目编号</label><input id="f_pnum" placeholder="需包含字母"></div>
+<div class="fg"><label><span class="req">*</span>项目名称</label><input id="f_pnm"></div>
+<div class="fg"><label>项目负责人</label><input id="f_lead"></div>
+<div class="fg"><label>承担部门</label><input id="f_dept"></div>
+<div class="fg"><label><span class="req">*</span>管理用途（可多选）</label>
+<div style="display:flex;gap:6px;flex-wrap:wrap;padding:4px 0"><label style="font-size:12px;display:flex;gap:3px;cursor:pointer"><input type="checkbox" value="加计扣除"> 加计扣除</label><label style="font-size:12px;display:flex;gap:3px;cursor:pointer"><input type="checkbox" value="高新认定"> 高新认定</label><label style="font-size:12px;display:flex;gap:3px;cursor:pointer"><input type="checkbox" value="IPO上市"> IPO上市</label></div></div>
+<div class="fg"><label>技术领域</label><select id="f_tech"><option value="">请选择</option><option>电子信息</option><option>生物医药</option><option>新材料</option><option>先进制造</option><option>新能源</option><option>资源环境</option></select></div>
+<div class="fg"><label><span class="req">*</span><span id="tag_s" class="req" style="display:none">*</span>项目状态</label><select id="f_status" onchange="onStatus()"><option value="">请选择</option><option>已立项</option><option>研发中</option><option>已结项</option></select></div>
+<div class="fg"><label><span class="req">*</span>组织形式</label><select id="f_form" onchange="onForm()"><option value="">请选择</option><option>自主研发</option><option>委托研发</option><option>合作研发</option><option>集中研发</option></select></div>
+<div class="fg" id="fg_corr" style="display:none"><label><span class="req">*</span>委托研发的关联关系 <span class="t t-a" title="系统将根据所选择参与组织自动赋值" style="cursor:help">💡</span></label><select id="f_corr" disabled><option value="">请选择</option><option>关联方</option><option>非关联方</option></select></div>
+<div class="fg" id="fg_os" style="display:none"><label><span class="req">*</span>是否委托境外 <span class="t t-a" title="系统将根据所选择参与组织自动赋值" style="cursor:help">💡</span></label><select id="f_os" disabled><option value="">请选择</option><option>委托境内</option><option>委托境外</option></select></div>
+<div class="fg" style="grid-column:span 2"><label><span class="req">*</span>主要研究内容</label><textarea id="f_cont"></textarea></div>
+<div class="fg" style="grid-column:span 2"><label><span class="req">*</span>创新点</label><textarea id="f_innov"></textarea></div>
+</div>
+
+<div class="sec">项目预算</div><div class="fg2">
+<div class="fg"><label><span class="req">*</span><span id="tag_c" class="req" style="display:none">*</span>支出类型</label><select id="f_type" onchange="onType()"><option value="">请选择</option><option>费用化</option><option>资本化</option><option>混合型</option></select></div>
+<div class="fg"><label><span class="req">*</span>项目总预算（万元）</label><input id="f_budget" type="number" step="0.01"></div>
+<div class="fg"><label>项目实际支出（万元）<span class="t t-a">自动取数</span></label><input id="f_actual" readonly class="ro-green"></div>
+<div class="fg"><label>立项日期</label><input id="f_estab" type="date"></div>
+<div class="fg"><label>项目开始日期</label><input id="f_start" type="date"></div>
+<div class="fg"><label>项目结束日期</label><input id="f_end" type="date"></div>
+<div class="fg"><label><span id="tag_co" class="req" style="display:none">*</span>资本化开始日</label><input id="f_cap" type="date" onchange="updateCap()"></div>
+<div class="fg"><label>资本化阶段 <span class="t t-a">系统自动</span></label><input id="f_caps" readonly class="ro-green"></div>
+<div class="fg"><label><span id="tag_e" class="req" style="display:none">*</span>完成情况</label><select id="f_comp"><option value="">请选择</option><option>未完成</option><option>已完成-研发成功</option><option>已完成-研发失败</option></select></div>
+</div>
+
+<div class="sec">项目来源</div><div class="fg2">
+<div class="fg"><label>项目活动类型</label><select id="f_act"><option value="">请选择</option><option>基础研究</option><option>应用研究</option><option>试验发展</option><option>成果应用</option><option>科技服务</option></select></div>
+<div class="fg"><label><span class="req">*</span>项目来源</label><select id="f_src" onchange="onSrc()"><option value="">请选择</option><option>自选项目</option><option>政府科技项目</option><option>外部委托项目</option><option>境外项目</option><option>其他项目</option></select></div>
+<div class="fg"><label><span id="tag_lv" class="req" style="display:none">*</span>项目级别</label><select id="f_lv" onchange="onLv()"><option value="">请选择</option><option>市级</option><option>省级</option><option>国家级</option></select></div>
+<div class="fg"><label><span id="tag_pi" class="req" style="display:none">*</span>科技计划项目编号</label><input id="f_pi"></div>
+
+<!-- <div class="fg"><label>辅助账状态 <span class="t t-a">同步账簿管理</span></label><input id="f_aid" readonly class="ro-green" value="待建账"></div> -->
+</div>
+</div>
+
+<div class="tp" id="t2"><div class="sec">项目参与人员（必填）</div>
+<div class="nt">从{人员信息}关联选择。工时已计入项目的人员不可解除关联。需设置研发分工、参与项目起止。</div>
+<div style="margin:8px 0"><button class="btn btn-o btn-sm" onclick="openPicker('personPicker')">+ 添加人员</button></div>
+<table style="margin:0 0 12px"><thead><tr><th>工号</th><th>姓名</th><th>专业</th><th>职称名称</th><th>用工类别</th><th>研发分工</th><th>参与项目起</th><th>参与项目止</th><th>操作</th></tr></thead><tbody id="projPersonRows"></tbody></table>
+</div>
+
+<div class="tp" id="t3"><div class="sec">项目使用资产（必填）</div>
+<div class="nt">从{资产信息}关联选择。折旧/摊销费已计入项目的资产不可解除关联。</div>
+<div style="margin:8px 0"><button class="btn btn-o btn-sm" onclick="openPicker('assetPicker')">+ 添加资产</button></div>
+<table style="margin:0 0 12px"><thead><tr><th>资产编号</th><th>资产名称</th><th>资产类别</th><th>用途分类</th><th>操作</th></tr></thead><tbody id="projAssetRows"></tbody></table>
+</div>
+
+<div class="tp" id="t4"><div class="sec">项目参与组织（条件必填）</div>
+<div class="nt">从{组织信息}关联选择。合作研发/委托研发/集中研发时必填。</div>
+<div style="margin:8px 0"><button class="btn btn-o btn-sm" onclick="openPicker('orgPicker')">+ 添加组织</button></div>
+<table style="margin:0 0 12px"><thead><tr><th>组织编号</th><th>组织名称</th><th>组织类型</th><th>国别类型</th><th>关联关系</th><th>操作</th></tr></thead><tbody id="projOrgRows"></tbody></table>
+</div>
+
+<div class="tp" id="t5"><div class="sec">项目备查资料</div>
+<div class="nt">系统将从{档案信息}自动关联本项目档案资料。</div>
+<div style="margin:8px 0"><button class="btn btn-o btn-sm" onclick="openPicker('archPicker')">+ 添加档案</button></div>
+<table style="margin:0 0 12px"><thead><tr><th>档案编号</th><th>档案名称</th><th>档案类别</th><th>档案日期</th><th>附件</th><th>操作</th></tr></thead><tbody id="projArchRows"></tbody></table>
+</div>
+
+</div>
+<div class="ml-f"><button class="btn btn-o" onclick="closeMo('moProj')">取消</button><button class="btn btn-p" id="projSaveBtn" onclick="alert('保存成功');closeMo('moProj')">保存</button></div>
+</div></div>
+
+<!-- 人员弹窗 -->
+<div class="mo" id="moPerson"><div class="ml" style="max-width:700px">
+<div class="ml-h"><h3 id="personTitle">新增人员</h3><button class="ml-x" onclick="closeMo('moPerson')">✕</button></div>
+<div class="ml-b"><div class="fg2">
+<div class="fg"><label><span class="req">*</span>公司名称</label><select id="fp_co"><option value="">请选择</option><option>海洋科技</option><option>海洋智税集团</option></select></div>
+<div class="fg"><label><span class="req">*</span>工号</label><input id="fp_id"></div>
+<div class="fg"><label><span class="req">*</span>姓名</label><input id="fp_name"></div>
+<div class="fg"><label><span class="req">*</span>性别</label><select id="fp_sex"><option value="">请选择</option><option>男</option><option>女</option></select></div>
+<div class="fg"><label><span class="req">*</span>身份证号</label><input id="fp_card"></div>
+<div class="fg"><label><span class="req">*</span>学历</label><select id="fp_edu"><option value="">请选择</option><option>博士</option><option>硕士</option><option>本科</option><option>大专</option><option>大专以下</option></select></div>
+<div class="fg"><label><span class="req">*</span>专业</label><input id="fp_major"></div>
+<div class="fg"><label><span class="req">*</span>职称名称</label><select id="fp_title" onchange="onTitle()"><option value="">请选择</option></select></div>
+<div class="fg"><label><span class="req">*</span>职称类别 <span class="t t-a">自动匹配</span></label><input id="fp_tcat" readonly class="ro-green"></div>
+<div class="fg"><label><span class="req">*</span>职务</label><input id="fp_duty"></div>
+<div class="fg"><label><span class="req">*</span>用工类别</label><select id="fp_utype"><option value="">请选择</option><option>正式员工</option><option>劳务派遣</option><option>兼职</option></select></div>
+<div class="fg"><label>任职期起</label><input type="date" id="fp_s"></div>
+<div class="fg"><label>任职期止</label><input type="date" id="fp_e"></div>
+<div class="fg" style="grid-column:span 2"><label>备注</label><input id="fp_rmk"></div>
+</div></div>
+<div class="ml-f"><button class="btn btn-o" onclick="closeMo('moPerson')">取消</button><button class="btn btn-p" onclick="alert('保存成功');closeMo('moPerson')">保存</button></div>
+</div></div>
+
+
+<!-- 资产弹窗 -->
+<div class="mo" id="moAsset"><div class="ml" style="max-width:900px">
+<div class="ml-h"><h3 id="assetTitle">新增资产</h3><button class="ml-x" onclick="closeMo('moAsset')">✕</button></div>
+<div class="ml-b"><div class="fg2">
+<div class="fg"><label><span class="req">*</span>公司名称</label><select id="fa_co"><option value="">请选择</option><option>海洋科技</option><option>海洋智税集团</option></select></div>
+<div class="fg"><label><span class="req">*</span>资产编号</label><input id="fa_id"></div>
+<div class="fg"><label><span class="req">*</span>资产名称</label><input id="fa_name"></div>
+<div class="fg"><label>规格型号</label><input id="fa_spec"></div>
+<div class="fg"><label>资产类别一级</label><select id="fa_l1" onchange="onAL1()"><option value="">请选择</option><option>固定资产</option><option>无形资产</option></select></div>
+<div class="fg"><label>资产类别二级</label><select id="fa_l2"><option value="">请先选择一级</option></select></div>
+<div class="fg"><label>取得方式</label><input id="fa_obtain"></div>
+<div class="fg"><label>研发项目编码</label><input id="fa_proj"></div>
+<div class="fg"><label>使用部门</label><input id="fa_dept"></div>
+<div class="fg"><label>使用状态</label><select id="fa_use"><option value="">请选择</option><option>在用</option><option>闲置</option><option>报废</option></select></div>
+<div class="fg"><label>会计原值</label><input id="fa_orig" type="number"></div>
+<div class="fg"><label>残值率(%)</label><input id="fa_res" type="number"></div>
+<div class="fg"><label>折旧年限</label><input id="fa_life" type="number"></div>
+<div class="fg"><label>折旧方法</label><select id="fa_meth"><option value="">请选择</option><option>直线法</option><option>双倍余额递减法</option><option>年数总和法</option></select></div>
+<div class="fg"><label>开始使用日期</label><input type="date" id="fa_date"></div>
+<div class="fg"><label><span class="req">*</span>税会折旧摊销差异</label><select id="fa_diff"><option value="">请选择</option><option>是</option><option>否</option></select></div>
+<div class="fg"><label><span class="req">*</span>用途分类</label><select id="fa_purpose"><option value="">请选择</option><option>直接研发</option><option>共用</option><option>非研发</option></select></div>
+<div class="fg"><label>备注</label><input id="fa_rmk"></div>
+</div></div>
+<div class="ml-f"><button class="btn btn-o" onclick="closeMo('moAsset')">取消</button><button class="btn btn-p" onclick="alert('保存成功');closeMo('moAsset')">保存</button></div>
+</div></div>
+
+<!-- 组织弹窗 -->
+<div class="mo" id="moOrg"><div class="ml" style="max-width:700px">
+<div class="ml-h"><h3 id="orgTitle">新增组织</h3><button class="ml-x" onclick="closeMo('moOrg')">✕</button></div>
+<div class="ml-b"><div class="fg2">
+<div class="fg"><label><span class="req">*</span>公司名称</label><select id="fo_co"><option value="">请选择</option><option>海洋科技</option><option>海洋智税集团</option></select></div>
+<div class="fg"><label><span class="req">*</span>组织编号</label><input id="fo_id"></div>
+<div class="fg"><label><span class="req">*</span>组织名称</label><input id="fo_name"></div>
+<div class="fg"><label><span class="req">*</span>证件号码</label><input id="fo_cert"></div>
+<div class="fg"><label><span class="req">*</span>组织类型</label><select id="fo_type"><option value="">请选择</option><option>研究机构</option><option>高等学校</option><option>企业单位</option><option>个人</option></select></div>
+<div class="fg"><label><span class="req">*</span>国别类型</label><select id="fo_country"><option value="">请选择</option><option>境内</option><option>境外</option></select></div>
+<div class="fg"><label><span class="req">*</span>关联关系</label><select id="fo_rel"><option value="">请选择</option><option>关联方</option><option>非关联方</option></select></div>
+<div class="fg" style="grid-column:span 2"><label>备注</label><input id="fo_rmk"></div>
+</div></div>
+<div class="ml-f"><button class="btn btn-o" onclick="closeMo('moOrg')">取消</button><button class="btn btn-p" onclick="alert('保存成功');closeMo('moOrg')">保存</button></div>
+</div></div>
+
+<!-- 档案弹窗 -->
+<div class="mo" id="moArch"><div class="ml" style="max-width:900px">
+<div class="ml-h"><h3 id="archTitle">新增档案</h3><button class="ml-x" onclick="closeMo('moArch')">✕</button></div>
+<div class="ml-b"><div class="fg2">
+<div class="fg"><label><span class="req">*</span>公司名称</label><select id="far_co"><option value="">请选择</option><option>海洋科技</option><option>海洋智税集团</option></select></div>
+<div class="fg"><label><span class="req">*</span>档案编号</label><input id="far_id"></div>
+<div class="fg"><label><span class="req">*</span>档案名称</label><input id="far_name"></div>
+<div class="fg"><label><span class="req">*</span>档案类别大类</label><select id="far_big" onchange="onArchBig()"><option value="">请选择</option><option>项目立项</option><option>项目过程</option><option>项目核算</option><option>项目结题</option><option>政府监管</option></select></div>
+<div class="fg"><label><span class="req">*</span>档案类别小类</label><select id="far_small" onchange="onArchSmall()"><option value="">请先选择大类</option></select></div>
+<div class="fg"><label>源文件编号</label><input id="far_src"></div>
+<div class="fg"><label><span class="req">*</span>档案日期</label><input type="date" id="far_date"></div>
+<div class="fg" style="grid-column:span 2"><label>关联项目</label><select id="far_proj" multiple size="4" style="width:100%"></select></div>
+<div class="fg"><label><span class="req">*</span>来源部门</label><input id="far_dept"></div>
+<div class="fg"><label><span class="req">*</span>档案用途 <span class="t t-a">默认自动填充</span></label>
+<div style="display:flex;gap:6px;flex-wrap:wrap;padding:4px 0"><label style="font-size:12px;display:flex;gap:3px;cursor:pointer"><input type="checkbox" class="fpur" value="加计扣除"> 加计扣除</label><label style="font-size:12px;display:flex;gap:3px;cursor:pointer"><input type="checkbox" class="fpur" value="高企认定"> 高企认定</label><label style="font-size:12px;display:flex;gap:3px;cursor:pointer"><input type="checkbox" class="fpur" value="IPO"> IPO</label><label style="font-size:12px;display:flex;gap:3px;cursor:pointer"><input type="checkbox" class="fpur" value="其他"> 其他</label></div></div>
+<div class="fg"><label>档案介质</label><select id="far_media"><option value="">请选择</option><option>纸质</option><option>电子</option><option>混合</option></select></div>
+<div class="fg"><label>保密等级</label><select id="far_sec"><option value="">请选择</option><option>普通</option><option>内部</option><option>机密</option></select></div>
+<div class="fg"><label>存放地点</label><input id="far_loc"></div>
+<div class="fg" style="grid-column:span 2"><label>备注</label><input id="far_rmk"></div>
+<div class="fg"><label>附件</label><input type="file" id="far_attach" multiple></div>
+</div></div>
+<div class="ml-f"><button class="btn btn-o" onclick="closeMo('moArch')">取消</button><button class="btn btn-p" onclick="saveArch()">保存</button></div>
+</div></div>
+<script>
+var TITLE_MAP={"教授":"高级职称（正高）","副教授":"高级职称（副高）","讲师":"中级职称","助教":"初级职称（助理级）","研究员(Z)":"高级职称（正高）","副研究员(Z)":"高级职称（副高）","助理研究员(Z)":"中级职称","研究实习员(Z)":"初级职称（助理级）","正高级工程师":"高级职称（正高）","高级工程师":"高级职称（副高）","工程师":"中级职称","助理工程师":"初级职称（助理级）","技术员":"初级职称（员级）","正高级农艺师":"高级职称（正高）","高级农艺师":"高级职称（副高）","农艺师":"中级职称","助理农艺师":"初级职称（助理级）","农业技术员":"初级职称（员级）","正高级兽医师":"高级职称（正高）","高级兽医师":"高级职称（副高）","兽医师":"中级职称","助理兽医师":"初级职称（助理级）","兽医技术员":"初级职称（员级）","正高级畜牧师":"高级职称（正高）","高级畜牧师":"高级职称（副高）","畜牧师":"中级职称","助理畜牧师":"初级职称（助理级）","畜牧技术员":"初级职称（员级）","正高级实验师":"高级职称（正高）","高级实验师":"高级职称（副高）","实验师":"中级职称","助理实验师":"初级职称（助理级）","实验员":"初级职称（员级）","高级技师":"高级技工","技师":"高级技工","高级工":"高级技工","中级工":"中级技工","初级工":"初级技工","其他职称":"其他"};
+var AL2={"固定资产":["设备","仪器"],"无形资产":["软件著作权","专利"]};
+var ARCH_MAP={"项目立项":["立项决议","项目计划书","可行性研究报告","项目组编制及人员名单"],"项目过程":["委托研发合同","合作研发合同","费用分摊协议","工时记录台账","设备使用记录","研发领料单","项目进展情况报告","委托研发付款凭证"],"项目核算":["资本化批准文件","费用分摊明细表","辅助账调整说明","研发支出辅助账","辅助账汇总表","研发费用明细申报表","研发支出明细情况说明"],"项目结题":["结题报告","项目经费决算报告","成果证明"],"政府监管":["鉴定证明","资质证明","税务事项通知书"]};
+var ARCH_PURPOSE={"项目立项":["加计扣除"],"项目过程":["加计扣除","高企认定"],"项目核算":["加计扣除"],"项目结题":["加计扣除","高企认定"],"政府监管":["加计扣除","高企认定","IPO"]};
+
+var projData=[
+  {id:"YF20260001",name:"智能税务引擎研发",company:"海洋科技",tech:"电子信息",status:"研发中",type:"混合型",form:"自主研发",budget:500,actual:328.5,start:"2025-01-15",end:"",comp:"未完成",src:"自选项目",aid:"已启用",capStage:"未开始",transferStatus:"未结转",lead:"张伟",dept:"研发一部",cont:"研发基于大模型的智能税务计算引擎",innov:"引入LLM语义理解技术"},
+  {id:"YF20260002",name:"税盾风控模型构建",company:"海洋智税集团",tech:"生物医药",status:"已结项",type:"费用化",form:"委托研发",budget:200,actual:187.3,start:"2024-06-01",end:"2025-12-20",comp:"已完成-研发成功",src:"政府科技项目",aid:"已关账",capStage:"不适用",transferStatus:"无需结转",lead:"李芳",dept:"研发二部",cont:"构建税盾风控模型",innov:"风控算法创新"},
+  {id:"YF20260003",name:"新型材料检测平台",company:"海洋科技",tech:"新材料",status:"已立项",type:"费用化",form:"自主研发",budget:120,actual:0,start:"",end:"",comp:"未完成",src:"自选项目",aid:"待建账",capStage:"不适用",transferStatus:"无需结转",lead:"王强",dept:"研发三部",cont:"材料检测平台搭建",innov:"新型检测方法"},
+  {id:"YF20260004",name:"智能数据清洗引擎",company:"海洋科技",tech:"电子信息",status:"已结项",type:"资本化",form:"自主研发",budget:350,actual:312.8,start:"2024-03-10",end:"2025-11-28",comp:"已完成-研发成功",src:"自选项目",aid:"已关账",cap:"已摊销",capStage:"归集核算",transferStatus:"已结转",lead:"赵敏",dept:"研发一部",cont:"研发面向海量异构数据的智能清洗与标注引擎",innov:"自研数据标注算法与清洗流水线"},
+  {id:"YF20260005",name:"高性能云计算调度系统",company:"海洋智税集团",tech:"电子信息",status:"已结项",type:"资本化",form:"自主研发",budget:420,actual:385.6,start:"2024-01-20",end:"2025-10-15",comp:"已完成-研发成功",src:"政府科技项目",aid:"已关账",capStage:"归集核算",transferStatus:"未结转",lead:"陈思远",dept:"研发一部",cont:"研发面向多租户场景的高性能云计算调度系统",innov:"动态资源调度算法"}
+];
+var personData=[
+  {id:"P001",name:"张伟",sex:"男",idcard:"110***19850****",edu:"博士",major:"计算机科学",title:"高级工程师",tcat:"高级职称（副高）",duty:"技术总监",utype:"正式员工",company:"海洋科技",start:"2023-01-01",end:"",rmk:""},
+  {id:"P002",name:"李芳",sex:"女",idcard:"310***19900****",edu:"硕士",major:"化学工程",title:"工程师",tcat:"中级职称",duty:"项目主管",utype:"正式员工",company:"海洋科技",start:"2024-03-15",end:"",rmk:""},
+  {id:"P003",name:"王强",sex:"男",idcard:"440***19880****",edu:"本科",major:"电子工程",title:"助理工程师",tcat:"初级职称（助理级）",duty:"研发工程师",utype:"劳务派遣",company:"海洋科技",start:"2025-06-01",end:"",rmk:""}
+];
+var assetData=[
+  {id:"A001",name:"高性能服务器",spec:"SRV-X200",l1:"固定资产",l2:"设备",obtain:"采购",proj:"YF20260001",company:"海洋科技",dept:"研发部",use:"在用",orig:150000,res:5,life:5,meth:"直线法",date:"2025-03-01",diff:"是",purpose:"直接研发",rmk:""},
+  {id:"A002",name:"光谱分析仪",spec:"SP-5000",l1:"固定资产",l2:"仪器",obtain:"采购",proj:"YF20260002",company:"海洋科技",dept:"实验室",use:"在用",orig:380000,res:5,life:10,meth:"直线法",date:"2024-06-15",diff:"否",purpose:"直接研发",rmk:""}
+];
+var orgData=[
+  {id:"ORG001",name:"清华大学",company:"海洋科技",cert:"12110000400001***",type:"高等学校",country:"境内",rel:"非关联方",projects:2,rmk:""},
+  {id:"ORG002",name:"ABC Research Ltd",company:"海洋智税集团",cert:"US-XXX-***",type:"研究机构",country:"境外",rel:"非关联方",projects:1,rmk:""},
+  {id:"ORG003",name:"海洋智税集团",company:"海洋科技",cert:"91110108***",type:"企业单位",country:"境内",rel:"关联方",projects:3,rmk:""}
+];
+var archData=[
+  {id:"DA2026001",big:"项目立项",small:"立项决议",company:"海洋科技",name:"智能税务引擎立项决议",src:"",date:"2025-01-10",archiveDate:"2025-01-15",createMode:"人工创建",proj:"YF20260001,YF20260005",dept:"研发部",attach:"📄",purpose:["加计扣除"],media:"电子",sec:"普通",archivist:"张伟",logs:[{action:"新增",operator:"张伟",reason:"新增档案",time:"2025-01-15 14:32:08"}]},
+  {id:"DA2026002",big:"项目过程",small:"委托研发合同",company:"海洋智税集团",name:"税盾风控委托研发合同",src:"HT-2024-060",date:"2024-06-01",archiveDate:"2024-06-05",createMode:"系统创建",proj:"YF20260002",dept:"法务部",attach:"📄",purpose:["加计扣除","高企认定"],media:"电子",sec:"内部",archivist:"李芳",logs:[{action:"新增",operator:"系统",reason:"新增档案",time:"2024-06-05 09:15:33"},{action:"编辑",operator:"李芳",reason:"补充合同编号",time:"2024-06-10 16:45:21"}]},
+  {id:"DA2026003",big:"项目核算",small:"研发支出辅助账",company:"海洋科技",name:"2025年度研发支出辅助账",src:"",date:"2025-12-20",archiveDate:"2025-12-25",createMode:"系统创建",proj:"YF20260001",dept:"财务部",attach:"📄",purpose:["加计扣除"],media:"电子",sec:"普通",archivist:"赵敏",logs:[{action:"新增",operator:"系统",reason:"新增档案",time:"2025-12-25 10:08:45"}]},
+  {id:"DA2026004",big:"项目立项",small:"可行性研究报告",company:"海洋科技",name:"数据清洗引擎可行性研究报告",src:"FEAS-2024-003",date:"2024-02-15",archiveDate:"2024-03-01",createMode:"人工创建",proj:"YF20260004",dept:"研发一部",attach:"📄",purpose:["加计扣除","高企认定"],media:"电子",sec:"内部",archivist:"赵敏",logs:[{action:"新增",operator:"赵敏",reason:"新增档案",time:"2024-03-01 11:20:15"},{action:"编辑",operator:"赵敏",reason:"修正技术路线描述",time:"2024-03-05 14:30:00"}]},
+  {id:"DA2026005",big:"项目过程",small:"工时记录台账",company:"海洋智税集团",name:"智能税务引擎项目工时记录",src:"",date:"2025-06-30",archiveDate:"2025-07-05",createMode:"系统创建",proj:"YF20260001",dept:"研发一部",attach:"📄",purpose:["加计扣除"],media:"电子",sec:"普通",archivist:"张伟",logs:[{action:"新增",operator:"系统",reason:"新增档案",time:"2025-07-05 08:42:10"}]}
+];
+
+function go(id,el){
+  var items=document.querySelectorAll('.side-item[data-p]');
+  for(var i=0;i<items.length;i++) items[i].classList.remove('on');
+  el.classList.add('on');
+  var pages=document.querySelectorAll('.pg');
+  for(var i=0;i<pages.length;i++){pages[i].classList.remove('on');pages[i].style.display='none'}
+  var target=document.getElementById(id);
+  if(target){target.classList.add('on');target.style.display='block'}
+}
+function openMo(id){document.getElementById(id).classList.add('on')}
+function closeMo(id){document.getElementById(id).classList.remove('on')}
+function stab(el,id){
+  el.parentElement.querySelectorAll('.tb').forEach(function(t){t.classList.remove('on')});
+  el.classList.add('on');
+  el.closest('.ml-b').querySelectorAll('.tp').forEach(function(p){p.classList.remove('on')});
+  document.getElementById(id).classList.add('on');
+}
+function fmt(n){return n?n.toLocaleString('zh-CN',{minimumFractionDigits:0,maximumFractionDigits:2}):'0'}
+function ttag(v){return v==='已结项'?'<span class="t t-b">'+v+'</span>':v==='研发中'?'<span class="t t-g">'+v+'</span>':v==='已立项'?'<span class="t t-x">'+v+'</span>':v}
+function stag(v){return v==='费用化'?'<span class="t t-x">'+v+'</span>':v==='资本化'?'<span class="t t-b">'+v+'</span>':v==='混合型'?'<span class="t t-p">'+v+'</span>':v}
+function astag(v){return v==='已启用'?'<span class="t t-y">'+v+'</span>':v==='已关账'?'<span class="t t-r">'+v+'</span>':v==='待建账'?'<span class="t t-p">'+v+'</span>':v}
+function seltag(v){return v==='机密'?'<span class="t t-r">'+v+'</span>':v==='内部'?'<span class="t t-y">'+v+'</span>':'<span class="t t-x">'+v+'</span>'}
+function tsTag(v){return v==='已结转'?'<span class="t t-b">'+v+'</span>':v==='无需结转'?'<span class="t t-x">'+v+'</span>':v==='未结转'?'<span class="t t-p">'+v+'</span>':v}
+
+/* ===== 项目 ===== */
+function renderProj(d){
+  var h='';
+  for(var i=0;i<d.length;i++){
+    var p=d[i];
+    var ts=(p.type==='费用化')?'无需结转':p.transferStatus;
+    h+='<tr><td>'+p.company+'</td><td>'+p.id+'</td><td>'+p.name+'</td><td>'+p.tech+'</td><td>'+ttag(p.status)+'</td><td>'+stag(p.type)+'</td><td>'+p.form+'</td><td style="text-align:right">'+fmt(p.budget)+'</td><td style="text-align:right">'+fmt(p.actual)+'</td><td>'+(p.start||'—')+'</td><td>'+(p.end||'—')+'</td><td>'+p.comp+'</td><td>'+p.src+'</td><td>'+p.capStage+'</td><!-- <td>'+astag(p.aid)+'</td> --><td>'+tsTag(ts)+'</td><td>';
+    var isEdit=(p.status==='已立项'||p.status==='研发中');
+    var isTransfer=(p.type==='资本化'||p.type==='混合型')&&p.capStage==='归集核算'&&p.status==='已结项'&&p.transferStatus==='未结转';
+    if(isEdit) h+='<button class="btn btn-sm btn-o" onclick="editProj(\''+p.id+'\')">编辑</button> <button class="btn btn-sm btn-o" onclick="viewProj(\''+p.id+'\')">详情</button>';
+    else if(isTransfer) h+='<button class="btn btn-sm btn-p" onclick="openTransfer(\''+p.id+'\')">结转</button> <button class="btn btn-sm btn-o" onclick="viewProj(\''+p.id+'\')">详情</button>';
+    else h+='<button class="btn btn-sm btn-o" onclick="viewProj(\''+p.id+'\')">详情</button>';
+    h+=' <button class="btn btn-sm btn-o" style="color:var(--err);border-color:var(--err)" onclick="delProj(\''+p.id+'\')">删除</button>';
+    h+='</td></tr>';
+  }
+  document.getElementById('projTb').innerHTML=h;
+}
+function filterProj(){
+  var d=projData,co=document.getElementById('q_pco').value,id=document.getElementById('q_pid').value,n=document.getElementById('q_pn').value,s=document.getElementById('q_ps').value,t=document.getElementById('q_pt').value,ts=document.getElementById('q_ts').value;
+  if(co) d=d.filter(function(p){return p.company&&p.company.indexOf(co)>=0});
+  if(id) d=d.filter(function(p){return p.id.indexOf(id)>=0});
+  if(n) d=d.filter(function(p){return p.name.indexOf(n)>=0});
+  if(s) d=d.filter(function(p){return p.status===s});
+  if(t) d=d.filter(function(p){return p.type===t});
+  if(ts) d=d.filter(function(p){return p.transferStatus===ts});
+  renderProj(d);
+}
+function delProj(id){if(!confirm("确认删除该项目？"))return;for(var i=0;i<projData.length;i++){if(projData[i].id===id){projData.splice(i,1);break}}renderProj(projData)}
+function resetProj(){document.getElementById('q_pco').value='';document.getElementById('q_pid').value='';document.getElementById('q_pn').value='';document.getElementById('q_ps').value='';document.getElementById('q_pt').value='';document.getElementById('q_ts').value='';renderProj(projData)}
+function editProj(id){
+  var p=null;for(var i=0;i<projData.length;i++){if(projData[i].id===id){p=projData[i];break}}
+  if(!p)return;
+  document.getElementById('projTitle').textContent='项目详情 — '+p.name;
+  document.getElementById('f_pco').value=p.company||'';document.getElementById('f_pnum').value=p.id;document.getElementById('f_pnm').value=p.name;
+  document.getElementById('f_lead').value=p.lead||'';document.getElementById('f_dept').value=p.dept||'';
+  document.getElementById('f_tech').value=p.tech;document.getElementById('f_status').value=p.status;
+  document.getElementById('f_form').value=p.form;document.getElementById('f_cont').value=p.cont||'';
+  document.getElementById('f_innov').value=p.innov||'';document.getElementById('f_type').value=p.type;
+  document.getElementById('f_budget').value=p.budget||'';document.getElementById('f_actual').value=p.actual||'';
+  document.getElementById('f_start').value=p.start||'';document.getElementById('f_end').value=p.end||'';
+  document.getElementById('f_comp').value=p.comp==='未完成'?'未完成':p.comp;
+  document.getElementById('f_src').value=p.src||'';
+  var inputs=document.getElementById('moProj').querySelectorAll('input,select,textarea');
+  for(var i=0;i<inputs.length;i++){inputs[i].disabled=false}
+  document.getElementById('projSaveBtn').style.display='';
+  onStatus();onType();onForm();onSrc();openMo('moProj');
+}
+function viewProj(id){
+  var p=null;for(var i=0;i<projData.length;i++){if(projData[i].id===id){p=projData[i];break}}
+  if(!p)return;
+  document.getElementById('projTitle').textContent='项目详情 — '+p.name;
+  document.getElementById('f_pnum').value=p.id;document.getElementById('f_pnm').value=p.name;
+  document.getElementById('f_lead').value=p.lead||'';document.getElementById('f_dept').value=p.dept||'';
+  document.getElementById('f_tech').value=p.tech;document.getElementById('f_status').value=p.status;
+  document.getElementById('f_form').value=p.form;document.getElementById('f_cont').value=p.cont||'';
+  document.getElementById('f_innov').value=p.innov||'';document.getElementById('f_type').value=p.type;
+  document.getElementById('f_budget').value=p.budget||'';document.getElementById('f_actual').value=p.actual||'';
+  document.getElementById('f_start').value=p.start||'';document.getElementById('f_end').value=p.end||'';
+  document.getElementById('f_comp').value=p.comp==='未完成'?'未完成':p.comp;
+  document.getElementById('f_src').value=p.src||'';
+  onStatus();onType();onForm();onSrc();
+  // Set all inputs/selects readonly
+  var inputs=document.getElementById('moProj').querySelectorAll('input,select,textarea');
+  for(var i=0;i<inputs.length;i++){inputs[i].disabled=true}
+  // Hide save button, show only close
+  document.getElementById('projSaveBtn').style.display='none';
+  openMo('moProj');
+}
+function openProj(){
+  document.getElementById('projTitle').textContent='新增项目';
+  var ids=['f_pnum','f_pnm','f_lead','f_dept','f_cont','f_innov','f_budget','f_actual','f_estab','f_start','f_end','f_cap','f_caps','f_pi'];
+  for(var i=0;i<ids.length;i++) document.getElementById(ids[i]).value='';
+  var sids=['f_tech','f_status','f_form','f_type','f_comp','f_act','f_src','f_lv','f_corr','f_os'];
+  for(var i=0;i<sids.length;i++) document.getElementById(sids[i]).value='';
+  
+  var inputs=document.getElementById('moProj').querySelectorAll('input,select,textarea');
+  for(var i=0;i<inputs.length;i++){inputs[i].disabled=false}
+  document.getElementById('projSaveBtn').style.display='';
+  onStatus();onType();onForm();onSrc();openMo('moProj');
+}
+function _tag(id,show){var e=document.getElementById(id);if(e)e.style.display=show?'inline':'none'}
+function onStatus(){
+  var s=document.getElementById('f_status').value;
+  _tag('tag_s',s==='研发中'||s==='已结项');
+  _tag('tag_e',s==='已结项');
+  _tag('tag_co',s==='已结项');
+  updateCap();
+}
+function onType(){_tag('tag_c',document.getElementById('f_type').value==='混合型');updateCap()}
+function onForm(){
+  var f=document.getElementById('f_form').value,isD=f==='委托研发';
+  var fgCorr=document.getElementById('fg_corr');
+  var fgOs=document.getElementById('fg_os');
+  var selCorr=document.getElementById('f_corr');
+  var selOs=document.getElementById('f_os');
+  if(fgCorr)fgCorr.style.display=isD?'':'none';
+  if(fgOs)fgOs.style.display=isD?'':'none';
+  if(selCorr){selCorr.disabled=!isD;if(!isD)selCorr.value='';}
+  if(selOs){selOs.disabled=!isD;if(!isD)selOs.value='';}
+}
+function onSrc(){var s=document.getElementById('f_src').value;_tag('tag_lv',s==='政府科技项目');if(s!=='政府科技项目'){document.getElementById('f_lv').value='';_tag('tag_pi',false)}}
+function onLv(){var l=document.getElementById('f_lv').value;_tag('tag_pi',l==='省级'||l==='国家级')}
+function updateCap(){var t=document.getElementById('f_type').value,c=document.getElementById('f_cap').value;var s='—';if(t==='费用化')s='不适用';else if(t==='资本化'||t==='混合型')s=c?'归集核算':'未开始';document.getElementById('f_caps').value=s}
+
+/* ===== 人员 ===== */
+function renderPerson(d){
+  var h='';
+  for(var i=0;i<d.length;i++){
+    var p=d[i];
+    h+='<tr><td>'+p.company+'</td><td>'+p.id+'</td><td>'+p.name+'</td><td>'+p.sex+'</td><td>'+p.idcard+'</td><td>'+p.edu+'</td><td>'+p.major+'</td><td>'+p.title+'</td><td><span class="t t-b">'+p.tcat+'</span></td><td>'+p.duty+'</td><td>'+p.utype+'</td><td>'+p.start+'</td><td>'+(p.end||'—')+'</td><td>'+p.rmk+'</td><td><button class="btn btn-sm btn-o" onclick="editPerson(\''+p.id+'\')">编辑</button> <button class="btn btn-sm btn-o" style="color:var(--err);border-color:var(--err)" onclick="delPerson(\''+p.id+'\')">删除</button></td></tr>';
+  }
+  document.getElementById('personTb').innerHTML=h;
+}
+function filterPerson(){var d=personData,co=document.getElementById('q_pcoco').value,i=document.getElementById('q_ppid').value,n=document.getElementById('q_pna').value,u=document.getElementById('q_put').value;if(co)d=d.filter(function(p){return p.company&&p.company.indexOf(co)>=0});if(i)d=d.filter(function(p){return p.id.indexOf(i)>=0});if(n)d=d.filter(function(p){return p.name.indexOf(n)>=0});if(u)d=d.filter(function(p){return p.utype===u});renderPerson(d)}
+function resetPerson(){document.getElementById('q_pcoco').value='';document.getElementById('q_ppid').value='';document.getElementById('q_pna').value='';document.getElementById('q_put').value='';renderPerson(personData)}
+function onTitle(){document.getElementById('fp_tcat').value=TITLE_MAP[document.getElementById('fp_title').value]||''}
+function editPerson(id){
+  var p=null;for(var i=0;i<personData.length;i++){if(personData[i].id===id){p=personData[i];break}}
+  if(!p)return;
+  document.getElementById('personTitle').textContent='修改人员 — '+p.name;
+  document.getElementById('fp_id').value=p.id;document.getElementById('fp_name').value=p.name;
+  document.getElementById('fp_sex').value=p.sex;document.getElementById('fp_card').value=p.idcard;
+  document.getElementById('fp_edu').value=p.edu;document.getElementById('fp_major').value=p.major;
+  document.getElementById('fp_title').value=p.title;document.getElementById('fp_tcat').value=p.tcat;
+  document.getElementById('fp_duty').value=p.duty;document.getElementById('fp_utype').value=p.utype;
+  document.getElementById('fp_co').value=p.company;document.getElementById('fp_s').value=p.start;
+  document.getElementById('fp_e').value=p.end;document.getElementById('fp_rmk').value=p.rmk;
+  openMo('moPerson');
+}
+function openPerson(){
+  document.getElementById('personTitle').textContent='新增人员';
+  var ids=['fp_id','fp_name','fp_card','fp_major','fp_duty','fp_co','fp_rmk'];
+  for(var i=0;i<ids.length;i++) document.getElementById(ids[i]).value='';
+  var sids=['fp_sex','fp_edu','fp_title','fp_utype'];
+  for(var i=0;i<sids.length;i++) document.getElementById(sids[i]).value='';
+  document.getElementById('fp_s').value='';document.getElementById('fp_e').value='';
+  document.getElementById('fp_tcat').value='';openMo('moPerson');
+}
+
+/* ===== 资产 ===== */
+function renderAsset(d){
+  var h='';
+  for(var i=0;i<d.length;i++){
+    var a=d[i];
+    h+='<tr><td>'+a.company+'</td><td>'+a.id+'</td><td>'+a.name+'</td><td>'+a.spec+'</td><td>'+a.l1+'</td><td>'+a.l2+'</td><td>'+a.obtain+'</td><td>'+projDisplayName(a.proj)+'</td><td>'+a.dept+'</td><td>'+a.use+'</td><td style="text-align:right">'+fmt(a.orig)+'</td><td>'+a.res+'%</td><td>'+a.life+'年</td><td>'+a.meth+'</td><td>'+a.date+'</td><td><span class="t '+(a.diff==='是'?'t-r':'t-g')+'">'+a.diff+'</span></td><td>'+a.purpose+'</td><td>'+a.rmk+'</td><td><button class="btn btn-sm btn-o" onclick="editAsset(\''+a.id+'\')">编辑</button>  <button class="btn btn-sm btn-o" style="color:var(--err);border-color:var(--err)" onclick="delAsset(\''+a.id+'\')">删除</button></td></tr>';
+  }
+  document.getElementById('assetTb').innerHTML=h;
+}
+function filterAssetL2(){var v=document.getElementById('q_al1').value,sel=document.getElementById('q_al2');sel.innerHTML='<option value="">全部</option>';if(AL2[v])for(var i=0;i<AL2[v].length;i++){var o=document.createElement('option');o.value=AL2[v][i];o.textContent=AL2[v][i];sel.appendChild(o)}}
+function filterAsset(){var d=assetData,co=document.getElementById('q_aco').value;if(co)d=d.filter(function(a){return a.company&&a.company.indexOf(co)>=0});renderAsset(d)}
+function resetAsset(){document.getElementById('q_aco').value='';document.getElementById('q_al1').value='';document.getElementById('q_al2').innerHTML='<option value="">全部</option>';renderAsset(assetData)}
+function onAL1(){var v=document.getElementById('fa_l1').value,sel=document.getElementById('fa_l2');sel.innerHTML='<option value="">请选择</option>';if(AL2[v])for(var i=0;i<AL2[v].length;i++){var o=document.createElement('option');o.value=AL2[v][i];o.textContent=AL2[v][i];sel.appendChild(o)}}
+function editAsset(id){
+  var a=null;for(var i=0;i<assetData.length;i++){if(assetData[i].id===id){a=assetData[i];break}}
+  if(!a)return;
+  document.getElementById('assetTitle').textContent='修改资产 — '+a.name;
+  document.getElementById('fa_id').value=a.id;document.getElementById('fa_name').value=a.name;
+  document.getElementById('fa_spec').value=a.spec;document.getElementById('fa_l1').value=a.l1;
+  onAL1();document.getElementById('fa_l2').value=a.l2;
+  document.getElementById('fa_obtain').value=a.obtain;document.getElementById('fa_proj').value=a.proj;
+  document.getElementById('fa_co').value=a.company;document.getElementById('fa_dept').value=a.dept;
+  document.getElementById('fa_use').value=a.use;document.getElementById('fa_orig').value=a.orig;
+  document.getElementById('fa_res').value=a.res;document.getElementById('fa_life').value=a.life;
+  document.getElementById('fa_meth').value=a.meth;document.getElementById('fa_date').value=a.date;
+  document.getElementById('fa_diff').value=a.diff;document.getElementById('fa_purpose').value=a.purpose;
+  document.getElementById('fa_rmk').value=a.rmk;openMo('moAsset');
+}
+function openAsset(){
+  document.getElementById('assetTitle').textContent='新增资产';
+  var ids=['fa_id','fa_name','fa_spec','fa_obtain','fa_proj','fa_co','fa_dept','fa_orig','fa_res','fa_life','fa_date','fa_rmk'];
+  for(var i=0;i<ids.length;i++) document.getElementById(ids[i]).value='';
+  var sids=['fa_l1','fa_l2','fa_use','fa_meth','fa_diff','fa_purpose'];
+  for(var i=0;i<sids.length;i++) document.getElementById(sids[i]).value='';
+  document.getElementById('fa_l2').innerHTML='<option value="">请先选择一级</option>';openMo('moAsset');
+}
+
+/* ===== 组织 ===== */
+function filterOrg(){var d=orgData,co=document.getElementById('q_ococo').value;if(co)d=d.filter(function(o){return o.company&&o.company.indexOf(co)>=0});renderOrg(d)}
+function renderOrg(d){
+  var h='';
+  for(var i=0;i<d.length;i++){
+    var o=d[i];
+    h+='<tr><td>'+o.company+'</td><td>'+o.id+'</td><td>'+o.name+'</td><td>'+o.cert+'</td><td><span class="t t-b">'+o.type+'</span></td><td>'+(o.country==='境外'?'<span class="t t-y">境外</span>':o.country)+'</td><td><span class="t '+(o.rel==='关联方'?'t-b':'t-x')+'">'+o.rel+'</span></td><td>'+o.rmk+'</td><td><button class="btn btn-sm btn-o" onclick="editOrg(\''+o.id+'\')">编辑</button> <button class="btn btn-sm btn-o" style="color:var(--err);border-color:var(--err)" onclick="delOrg(\''+o.id+'\')">删除</button></td></tr>';
+  }
+  document.getElementById('orgTb').innerHTML=h;
+}
+function editOrg(id){
+  var o=null;for(var i=0;i<orgData.length;i++){if(orgData[i].id===id){o=orgData[i];break}}
+  if(!o)return;
+  document.getElementById('orgTitle').textContent='修改组织 — '+o.name;
+  document.getElementById('fo_co').value=o.company||'';document.getElementById('fo_id').value=o.id;document.getElementById('fo_name').value=o.name;
+  document.getElementById('fo_cert').value=o.cert;document.getElementById('fo_type').value=o.type;
+  document.getElementById('fo_country').value=o.country;document.getElementById('fo_rel').value=o.rel;
+  document.getElementById('fo_rmk').value=o.rmk;openMo('moOrg');
+}
+function openOrg(){
+  document.getElementById('orgTitle').textContent='新增组织';
+  document.getElementById('fo_co').value='';
+  var ids=['fo_id','fo_name','fo_cert','fo_rmk'];
+  for(var i=0;i<ids.length;i++) document.getElementById(ids[i]).value='';
+  var sids=['fo_type','fo_country','fo_rel'];
+  for(var i=0;i<sids.length;i++) document.getElementById(sids[i]).value='';
+  openMo('moOrg');
+}
+
+/* ===== 档案 ===== */
+function projDisplayName(projStr){
+  if(!projStr)return '—';
+  var ids=projStr.split(',');var result=[];
+  for(var i=0;i<ids.length;i++){var pid=ids[i].trim();var found=false;
+    for(var j=0;j<projData.length;j++){if(projData[j].id===pid){result.push(pid+'_'+projData[j].name);found=true;break}}
+    if(!found)result.push(pid);
+  }
+  return result.join(', ');
+}
+function filterArch(){var d=archData,co=document.getElementById('q_arcoco').value;if(co)d=d.filter(function(a){return a.company&&a.company.indexOf(co)>=0});renderArch(d)}
+function renderArch(d){
+  var h='';
+  for(var i=0;i<d.length;i++){
+    var a=d[i];
+    var purp='';for(var j=0;j<a.purpose.length;j++){purp+='<span class="t t-g" style="margin:1px">'+a.purpose[j]+'</span> '}
+    h+='<tr><td>'+a.company+'</td><td>'+a.id+'</td><td>'+a.name+'</td><td><span class="t t-b">'+a.big+'</span></td><td>'+a.small+'</td><td>'+(a.src||'—')+'</td><td>'+a.date+'</td><td>'+projDisplayName(a.proj)+'</td><td>'+a.dept+'</td><td>'+a.attach+'</td><td>'+purp+'</td><td>'+a.media+'</td><td>'+seltag(a.sec)+'</td><td>'+a.archivist+'</td><td>'+(a.archiveDate||'—')+'</td><td>'+(a.createMode==='系统创建'?'<span class="t t-b">系统创建</span>':'<span class="t t-x">人工创建</span>')+'</td><td><button class="btn btn-sm btn-o" onclick="viewArchLogs(\''+a.id+'\')">日志</button> <button class="btn btn-sm btn-o" onclick="editArch(\''+a.id+'\')">编辑</button>'+(a.createMode==='人工创建'?' <button class="btn btn-sm btn-o" style="color:var(--err);border-color:var(--err)" onclick="delArch(\'"+a.id+"\')">删除</button>':'')+'</td></tr>';
+  }
+  document.getElementById('archTb').innerHTML=h;
+}
+function filterArchSmall(){var b=document.getElementById('q_abig').value,sel=document.getElementById('q_asmall');sel.innerHTML='<option value="">全部</option>';if(ARCH_MAP[b])for(var i=0;i<ARCH_MAP[b].length;i++){var o=document.createElement('option');o.value=ARCH_MAP[b][i];o.textContent=ARCH_MAP[b][i];sel.appendChild(o)}}
+function resetArch(){document.getElementById('q_arcoco').value='';document.getElementById('q_abig').value='';document.getElementById('q_asmall').innerHTML='<option value="">全部</option>';renderArch(archData)}
+function onArchBig(){var b=document.getElementById('far_big').value,sel=document.getElementById('far_small');sel.innerHTML='<option value="">请先选择大类</option>';if(ARCH_MAP[b])for(var i=0;i<ARCH_MAP[b].length;i++){var o=document.createElement('option');o.value=ARCH_MAP[b][i];o.textContent=ARCH_MAP[b][i];sel.appendChild(o)};var cs=document.querySelectorAll('.fpur');for(var i=0;i<cs.length;i++) cs[i].checked=false}
+function onArchSmall(){var b=document.getElementById('far_big').value;var cs=document.querySelectorAll('.fpur');for(var i=0;i<cs.length;i++) cs[i].checked=false;if(ARCH_PURPOSE[b])for(var j=0;j<ARCH_PURPOSE[b].length;j++){for(var i=0;i<cs.length;i++){if(cs[i].value===ARCH_PURPOSE[b][j]) cs[i].checked=true}}}
+function populateFarProj(selectedIds){
+  var sel=document.getElementById('far_proj');
+  sel.innerHTML='';
+  for(var i=0;i<projData.length;i++){
+    var opt=document.createElement('option');
+    opt.value=projData[i].id;
+    opt.textContent=projData[i].id+'_'+projData[i].name;
+    if(selectedIds&&selectedIds.indexOf(projData[i].id)>=0) opt.selected=true;
+    sel.appendChild(opt);
+  }
+}
+var archEditId=null;
+function editArch(id){
+  archEditId=id;
+  var a=null;for(var i=0;i<archData.length;i++){if(archData[i].id===id){a=archData[i];break}}
+  if(!a)return;
+  document.getElementById('archTitle').textContent='修改档案 — '+a.name;
+  document.getElementById('far_co').value=a.company||'';document.getElementById('far_id').value=a.id;document.getElementById('far_big').value=a.big;
+  onArchBig();document.getElementById('far_small').value=a.small;
+  document.getElementById('far_name').value=a.name;document.getElementById('far_src').value=a.src;
+  document.getElementById('far_date').value=a.date;populateFarProj(a.proj?a.proj.split(','):[]);
+  document.getElementById('far_dept').value=a.dept;
+  var cs=document.querySelectorAll('.fpur');for(var i=0;i<cs.length;i++) cs[i].checked=a.purpose.indexOf(cs[i].value)>=0;
+  document.getElementById('far_media').value=a.media;document.getElementById('far_sec').value=a.sec;
+  openMo('moArch');
+}
+function openArch(){
+  archEditId=null;
+  document.getElementById('archTitle').textContent='新增档案';
+  document.getElementById('far_co').value='';
+  populateFarProj([]);
+  var ids=['far_id','far_name','far_src','far_dept','far_loc','far_rmk'];
+  for(var i=0;i<ids.length;i++) document.getElementById(ids[i]).value='';
+  var sids=['far_big','far_small','far_media','far_sec'];
+  for(var i=0;i<sids.length;i++) document.getElementById(sids[i]).value='';
+  document.getElementById('far_date').value='';
+  document.getElementById('far_small').innerHTML='<option value="">请先选择大类</option>';
+  var cs=document.querySelectorAll('.fpur');for(var i=0;i<cs.length;i++) cs[i].checked=false;
+  openMo('moArch');
+}
+function saveArch(){
+  if(archEditId){
+    document.getElementById('archEditReason').value='';
+    document.getElementById('archEditCharCount').textContent='0/100';
+    openMo('moArchEditReason');
+  } else {
+    var id=document.getElementById('far_id').value;
+    if(!id){alert('请填写档案编号');return;}
+    var logs=[{action:"新增",operator:"当前用户",reason:"新增档案",time:(function(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0")})()}];
+    archData.push({id:id,name:document.getElementById('far_name').value||'',big:document.getElementById('far_big').value,small:document.getElementById('far_small').value,src:document.getElementById('far_src').value||'',date:document.getElementById('far_date').value,archiveDate:new Date().toISOString().slice(0,10),createMode:"人工创建",proj:(function(){var s=document.getElementById('far_proj');var r=[];for(var i=0;i<s.options.length;i++){if(s.options[i].selected)r.push(s.options[i].value)}return r.join(',')})(),dept:document.getElementById('far_dept').value||'',attach:"📄",purpose:[],media:document.getElementById('far_media').value||'电子',sec:document.getElementById('far_sec').value||'普通',archivist:"当前用户",logs:logs});
+    var cs=document.querySelectorAll('.fpur');var pur=[];for(var i=0;i<cs.length;i++)if(cs[i].checked)pur.push(cs[i].value);archData[archData.length-1].purpose=pur;
+    renderArch(archData);
+    closeMo('moArch');
+    alert('保存成功');
+  }
+}
+function confirmArchEdit(){
+  var reason=document.getElementById('archEditReason').value.trim();
+  if(!reason){alert('请填写编辑原因');return;}
+  for(var i=0;i<archData.length;i++){
+    if(archData[i].id===archEditId){
+      archData[i].name=document.getElementById('far_name').value;
+      archData[i].big=document.getElementById('far_big').value;
+      archData[i].small=document.getElementById('far_small').value;
+      archData[i].src=document.getElementById('far_src').value;
+      archData[i].date=document.getElementById('far_date').value;
+      archData[i].proj=(function(){var s=document.getElementById('far_proj');var r=[];for(var i=0;i<s.options.length;i++){if(s.options[i].selected)r.push(s.options[i].value)}return r.join(',')})();
+      archData[i].dept=document.getElementById('far_dept').value;
+      var cs=document.querySelectorAll('.fpur');var pur=[];for(var j=0;j<cs.length;j++)if(cs[j].checked)pur.push(cs[j].value);archData[i].purpose=pur;
+      archData[i].media=document.getElementById('far_media').value;
+      archData[i].sec=document.getElementById('far_sec').value;
+      archData[i].logs.push({action:"编辑",operator:"当前用户",reason:reason,time:(function(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0")})()});
+      break;
+    }
+  }
+  renderArch(archData);
+  closeMo('moArchEditReason');
+  closeMo('moArch');
+  alert('保存成功');
+}
+function viewArchLogs(id){
+  var a=null;for(var i=0;i<archData.length;i++){if(archData[i].id===id){a=archData[i];break}}
+  if(!a)return;
+  document.getElementById('archLogTitle').textContent='操作日志 — '+a.name;
+  var h='';
+  if(a.logs&&a.logs.length){
+    var sorted=a.logs.slice().sort(function(x,y){return x.time>y.time?-1:x.time<y.time?1:0});
+    for(var i=0;i<sorted.length;i++){
+      var lg=sorted[i];
+      h+='<tr><td>'+(lg.action==='新增'?'<span class="t t-g">'+lg.action+'</span>':'<span class="t t-b">'+lg.action+'</span>')+'</td><td>'+lg.operator+'</td><td>'+lg.reason+'</td><td>'+lg.time+'</td></tr>';
+    }
+  } else {
+    h='<tr><td colspan="4" style="text-align:center;color:#999">暂无日志记录</td></tr>';
+  }
+  document.getElementById('archLogTb').innerHTML=h;
+  openMo('moArchLog');
+}
+
+function openImport(type){
+  var titles={'project':'项目信息','person':'人员信息','asset':'资产信息','org':'组织信息','archive':'档案信息'};
+  document.getElementById('importTitle').textContent=(titles[type]||'数据')+'导入';
+  document.getElementById('importFile').value='';
+  openMo('moImport');
+}
+/* ===== 侧边栏事件绑定 ===== */
+var navItems=document.querySelectorAll('.side-item[data-p]');
+for(var i=0;i<navItems.length;i++){
+  (function(item){
+    item.addEventListener('click',function(){go(item.getAttribute('data-p'),item)});
+  })(navItems[i]);
+}
+
+
+/* ===== 摊销明细 ===== */
+var amortData=[
+  {id:"AM001",aid:"A001",period:"2026-01",beginNet:150000,cur:2500,accum:2500,endNet:147500,status:"已摊销"},
+  {id:"AM002",aid:"A001",period:"2026-02",beginNet:147500,cur:2500,accum:5000,endNet:145000,status:"已摊销"},
+  {id:"AM003",aid:"A001",period:"2026-03",beginNet:145000,cur:2500,accum:7500,endNet:142500,status:"待摊销"},
+  {id:"AM004",aid:"A002",period:"2026-01",beginNet:380000,cur:3016,accum:3016,endNet:376984,status:"已摊销"},
+  {id:"AM005",aid:"A002",period:"2026-02",beginNet:376984,cur:3016,accum:6032,endNet:373968,status:"待摊销"}
+];
+
+var currentAmortAsset=null;
+
+function viewAmortDetail(assetId){
+  var asset=null;
+  for(var i=0;i<assetData.length;i++){
+    if(assetData[i].id===assetId){asset=assetData[i];break}
+  }
+  if(!asset){alert('资产不存在');return;}
+  currentAmortAsset=asset;
+  
+  document.getElementById('amortDetailTitle').textContent='摊销明细 — '+asset.name;
+  document.getElementById('ad_aid').value=asset.id;
+  document.getElementById('ad_aname').value=asset.name;
+  document.getElementById('ad_deduction').value=fmt(asset.orig);
+  document.getElementById('ad_res').value=asset.res+'%';
+  document.getElementById('ad_tlife').value=asset.life*12+'个月';
+  document.getElementById('ad_meth').value=asset.meth;
+  
+  renderAmortDetail(assetId);
+  openMo('moAmortDetail');
+}
+
+function renderAmortDetail(assetId){
+  var list=amortData.filter(function(a){return a.aid===assetId});
+  list.sort(function(a,b){return a.period>b.period?1:-1});
+  
+  var h='';
+  for(var i=0;i<list.length;i++){
+    var a=list[i];
+    var statusTag=a.status==='已摊销'?'<span class="t t-g">'+a.status+'</span>':'<span class="t t-y">'+a.status+'</span>';
+    h+='<tr><td>'+a.period+'</td><td style="text-align:right">'+fmt(a.beginNet)+'</td><td style="text-align:right">'+fmt(a.cur)+'</td><td style="text-align:right">'+fmt(a.accum)+'</td><td style="text-align:right">'+fmt(a.endNet)+'</td><td>'+statusTag+'</td><td>';
+    if(a.status==='待摊销'){
+      h+='<button class="btn btn-sm btn-p" onclick="markAmortDone(\''+a.id+'\')">标记已摊销</button>';
+    }else{
+      h+='<span style="color:var(--g400)">—</span>';
+    }
+    h+='</td></tr>';
+  }
+  
+  if(!list.length){
+    h='<tr><td colspan="7" style="text-align:center;color:var(--g400);padding:20px">暂无摊销记录，请点击"生成下一期摊销"创建</td></tr>';
+  }
+  
+  document.getElementById('amortDetailTb').innerHTML=h;
+}
+
+var pendingAmortId=null;
+function markAmortDone(id){
+  pendingAmortId=id;
+  openMo('moAmortConfirm');
+}
+function confirmAmortDone(){
+  if(!pendingAmortId)return;
+  for(var i=0;i<amortData.length;i++){
+    if(amortData[i].id===pendingAmortId){
+      amortData[i].status='已摊销';
+      break;
+    }
+  }
+  if(currentAmortAsset){
+    renderAmortDetail(currentAmortAsset.id);
+  }
+  closeMo('moAmortConfirm');
+  pendingAmortId=null;
+  alert('操作成功');
+}
+function cancelAmortConfirm(){
+  closeMo('moAmortConfirm');
+  pendingAmortId=null;
+}
+
+function calcAmortAmount(deduction,res,tlife,method){
+  var depreciable=deduction*(1-res/100);
+  if(method==='直线法'){
+    return Math.round(depreciable/tlife);
+  }else if(method==='双倍余额递减法'){
+    var rate=2/tlife;
+    return Math.round(deduction*rate);
+  }else if(method==='年数总和法'){
+    var sum=tlife*(tlife+1)/2;
+    return Math.round(depreciable*tlife/sum/tlife);
+  }
+  return Math.round(depreciable/tlife);
+}
+
+function genNextAmort(){
+  if(!currentAmortAsset){return;}
+  var asset=currentAmortAsset;
+  var deduction=asset.orig;
+  var res=asset.res;
+  var tlife=asset.life*12;
+  var meth=asset.meth;
+  
+  var list=amortData.filter(function(a){return a.aid===asset.id});
+  list.sort(function(a,b){return a.period>b.period?1:-1});
+  
+  var nextPeriod='';
+  var lastEndNet=deduction;
+  
+  if(list.length>0){
+    var last=list[list.length-1];
+    var parts=last.period.split('-');
+    var y=parseInt(parts[0]),m=parseInt(parts[1])+1;
+    if(m>12){m=1;y++}
+    nextPeriod=y+'-'+(m<10?'0'+m:m);
+    lastEndNet=last.endNet;
+  }else{
+    var now=new Date();
+    nextPeriod=now.getFullYear()+'-'+(now.getMonth()+1<10?'0'+(now.getMonth()+1):now.getMonth()+1);
+  }
+  
+  var curAmort=calcAmortAmount(deduction,res,tlife,meth);
+  var accum=0;
+  for(var i=0;i<list.length;i++){accum+=list[i].cur;}
+  var newAccum=accum+curAmort;
+  var newEndNet=deduction*(1-res/100)-newAccum;
+  if(newEndNet<0)newEndNet=0;
+  
+  var existIdx=-1;
+  for(var i=0;i<amortData.length;i++){
+    if(amortData[i].aid===asset.id&&amortData[i].period===nextPeriod){existIdx=i;break}
+  }
+  
+  var rec={
+    id:'AM'+(amortData.length+1).toString().padStart(3,'0'),
+    aid:asset.id,
+    period:nextPeriod,
+    beginNet:lastEndNet,
+    cur:curAmort,
+    accum:newAccum,
+    endNet:newEndNet,
+    status:'待摊销'
+  };
+  
+  if(existIdx>=0){
+    amortData[existIdx]=rec;
+  }else{
+    amortData.push(rec);
+  }
+  
+  renderAmortDetail(asset.id);
+  alert('已生成 '+nextPeriod+' 期摊销记录');
+}
+
+function genAllAmort(){
+  if(!currentAmortAsset){return;}
+  var asset=currentAmortAsset;
+  var deduction=asset.orig;
+  var res=asset.res;
+  var tlife=asset.life*12;
+  var meth=asset.meth;
+  
+  var list=amortData.filter(function(a){return a.aid===asset.id});
+  if(list.length>=tlife){
+    alert('该资产已生成全部'+tlife+'期摊销计划');
+    return;
+  }
+  
+  var existPeriods={};
+  for(var i=0;i<list.length;i++){existPeriods[list[i].period]=true;}
+  
+  var startYear,startMonth;
+  if(list.length>0){
+    var last=list[list.length-1];
+    var parts=last.period.split('-');
+    startYear=parseInt(parts[0]);
+    startMonth=parseInt(parts[1])+1;
+    if(startMonth>12){startMonth=1;startYear++}
+  }else{
+    var now=new Date();
+    startYear=now.getFullYear();
+    startMonth=now.getMonth()+1;
+  }
+  
+  var accum=0;
+  for(var i=0;i<list.length;i++){accum+=list[i].cur;}
+  
+  var count=0;
+  var curYear=startYear,curMonth=startMonth;
+  
+  for(var i=0;i<tlife-list.length;i++){
+    var period=curYear+'-'+(curMonth<10?'0'+curMonth:curMonth);
+    if(!existPeriods[period]){
+      var curAmort=calcAmortAmount(deduction,res,tlife,meth);
+      var beginNet=deduction*(1-res/100)-accum;
+      accum+=curAmort;
+      var endNet=deduction*(1-res/100)-accum;
+      if(endNet<0)endNet=0;
+      
+      amortData.push({
+        id:'AM'+(amortData.length+1).toString().padStart(3,'0'),
+        aid:asset.id,
+        period:period,
+        beginNet:beginNet,
+        cur:curAmort,
+        accum:accum,
+        endNet:endNet,
+        status:'待摊销'
+      });
+      count++;
+    }
+    
+    curMonth++;
+    if(curMonth>12){curMonth=1;curYear++}
+  }
+  
+  renderAmortDetail(asset.id);
+  alert('已生成全部摊销计划，共 '+count+' 条记录');
+}
+
+function saveTransfer(){
+  var id=document.getElementById('ft_id').value;
+  var name=document.getElementById('ft_name').value;
+  var l1=document.getElementById('ft_l1').value;
+  var l2=document.getElementById('ft_l2').value;
+  var deduction=document.getElementById('ft_deduction').value;
+  
+  if(!id||!name||!l1||!l2||!deduction){
+    alert('请填写所有必填字段');
+    return;
+  }
+  
+  assetData.push({
+    id:id,
+    name:name,
+    spec:document.getElementById('ft_spec').value,
+    l1:l1,
+    l2:l2,
+    obtain:'自研',
+    proj:document.getElementById('ft_proj').value,
+    company:document.getElementById('ft_company').value,
+    dept:document.getElementById('ft_dept').value,
+    use:document.getElementById('ft_use').value||'在用',
+    orig:parseFloat(document.getElementById('ft_orig').value)||parseFloat(deduction),
+    res:parseFloat(document.getElementById('ft_res').value)||5,
+    life:Math.ceil((parseFloat(document.getElementById('ft_tlife').value)||60)/12)||5,
+    meth:document.getElementById('ft_meth').value||'直线法',
+    date:document.getElementById('ft_date').value,
+    diff:document.getElementById('ft_diff').value,
+    purpose:document.getElementById('ft_purpose').value||'直接研发',
+    rmk:document.getElementById('ft_rmk').value
+  });
+  
+  renderAsset(assetData);
+  // Also add to amortPageData for 摊销管理 page
+  amortPageData.push({
+    proj:document.getElementById('ft_proj').value,
+    aid:id,
+    name:name,
+    spec:document.getElementById('ft_spec').value,
+    l1:l1,
+    l2:l2,
+    dept:document.getElementById('ft_dept').value,
+    use:document.getElementById('ft_use').value||'在用',
+    date:document.getElementById('ft_date').value,
+    tlife:parseInt(document.getElementById('ft_tlife').value)||60,
+    orig:parseFloat(document.getElementById('ft_orig').value)||parseFloat(deduction),
+    deduction:parseFloat(deduction),
+    res:parseFloat(document.getElementById('ft_res').value)||5,
+    meth:document.getElementById('ft_meth').value||'直线法',
+    rmk:document.getElementById('ft_rmk').value
+  });
+  renderAmort(amortPageData);
+  var projId=document.getElementById('ft_proj').value;
+  for(var i=0;i<projData.length;i++){if(projData[i].id===projId){projData[i].transferStatus='已结转';break}}
+  renderProj(projData);
+  closeMo('moTransfer');
+  alert('资产已保存至资产信息和摊销管理模块');
+}
+
+function onFTL1(){
+  var v=document.getElementById('ft_l1').value;
+  var sel=document.getElementById('ft_l2');
+  sel.innerHTML='<option value="">请选择</option>';
+  if(AL2[v]){
+    for(var i=0;i<AL2[v].length;i++){
+      var o=document.createElement('option');
+      o.value=AL2[v][i];
+      o.textContent=AL2[v][i];
+      sel.appendChild(o);
+    }
+  }
+}
+
+function openTransfer(projId){
+  document.getElementById('ft_proj').value=projId||'';
+  document.getElementById('ft_obtain').value='自研';
+  ['ft_id','ft_name','ft_spec','ft_deduction','ft_orig','ft_dept','ft_date','ft_rmk'].forEach(function(id){
+    document.getElementById(id).value='';
+  });
+  document.getElementById('ft_l1').value='';
+  document.getElementById('ft_l2').innerHTML='<option value="">请先选择一级</option>';
+  document.getElementById('ft_use').value='在用';
+  document.getElementById('ft_meth').value='';
+  document.getElementById('ft_res').value='5';
+  document.getElementById('ft_tlife').value='';
+  document.getElementById('ft_diff').value='否';
+  document.getElementById('ft_purpose').value='直接研发';
+  openMo('moTransfer');
+}
+
+
+
+function delPerson(id){
+  if(!confirm('确认删除该人员？'))return;
+  for(var i=0;i<personData.length;i++){if(personData[i].id===id){personData.splice(i,1);break}}
+  renderPerson(personData);
+}
+function delAsset(id){
+  if(!confirm('确认删除该资产？'))return;
+  for(var i=0;i<assetData.length;i++){if(assetData[i].id===id){assetData.splice(i,1);break}}
+  renderAsset(assetData);
+}
+function delOrg(id){
+  if(!confirm('确认删除该组织？'))return;
+  for(var i=0;i<orgData.length;i++){if(orgData[i].id===id){orgData.splice(i,1);break}}
+  renderOrg(orgData);
+}
+function delArch(id){
+  if(!confirm('确认删除该档案？'))return;
+  for(var i=0;i<archData.length;i++){if(archData[i].id===id){archData.splice(i,1);break}}
+  renderArch(archData);
+}
+
+/* ===== 摊销管理页面 ===== */
+var amortPageData=[
+  {proj:"YF20260001",aid:"A001",name:"高性能服务器",spec:"SRV-X200",l1:"固定资产",l2:"设备",dept:"研发部",use:"在用",date:"2025-03-01",tlife:60,orig:150000,deduction:150000,res:5,meth:"年限平均法",rmk:""},
+  {proj:"YF20260002",aid:"A002",name:"光谱分析仪",spec:"SP-5000",l1:"固定资产",l2:"仪器",dept:"实验室",use:"在用",date:"2024-06-15",tlife:120,orig:380000,deduction:380000,res:5,meth:"年限平均法",rmk:""}
+];
+function renderAmort(d){
+  var h='';
+  for(var i=0;i<d.length;i++){
+    var a=d[i];
+    h+='<tr><td>'+a.proj+'</td><td>'+a.aid+'</td><td>'+a.name+'</td><td>'+(a.spec||'—')+'</td><td>'+a.l1+'</td><td>'+a.l2+'</td><td>'+(a.dept||'—')+'</td><td>'+(a.use||'—')+'</td><td>'+(a.date||'—')+'</td><td>'+a.tlife+'</td><td style="text-align:right">'+fmt(a.orig)+'</td><td style="text-align:right">'+fmt(a.deduction)+'</td><td>'+a.res+'%</td><td>'+a.meth+'</td><td>'+(a.rmk||'—')+'</td><td><button class="btn btn-sm btn-o" onclick="viewAmortDetailFromPage(\''+a.aid+'\')">摊销明细</button></td></tr>';
+  }
+  document.getElementById('amortTb').innerHTML=h;
+}
+function filterAmort(){
+  var d=amortPageData;
+  var proj=document.getElementById('q_am_proj').value;
+  var aid=document.getElementById('q_am_aid').value;
+  var name=document.getElementById('q_am_name').value;
+  var status=document.getElementById('q_am_status').value;
+  if(proj) d=d.filter(function(a){return a.proj.indexOf(proj)>=0});
+  if(aid) d=d.filter(function(a){return a.aid.indexOf(aid)>=0});
+  if(name) d=d.filter(function(a){return a.name.indexOf(name)>=0});
+  renderAmort(d);
+}
+function resetAmort(){document.getElementById('q_am_proj').value='';document.getElementById('q_am_aid').value='';document.getElementById('q_am_name').value='';document.getElementById('q_am_status').value='';renderAmort(amortPageData)}
+
+/* ===== 初始化 ===== */
+function doInit(){
+  try{
+    var tSel=document.getElementById('fp_title');var keys=Object.keys(TITLE_MAP);
+    for(var i=0;i<keys.length;i++){var o=document.createElement('option');o.value=keys[i];o.textContent=keys[i];tSel.appendChild(o)}
+    var allPages=document.querySelectorAll('.pg');
+    for(var i=0;i<allPages.length;i++) allPages[i].style.display='none';
+    var p1=document.getElementById('p1');if(p1){p1.style.display='block';p1.classList.add('on')}
+    renderProj(projData);renderPerson(personData);renderAsset(assetData);renderOrg(orgData);renderArch(archData);
+    renderAmort(amortPageData);
+    var mods=document.querySelectorAll('.mo');for(var i=0;i<mods.length;i++){mods[i].addEventListener('click',function(e){if(e.target===this)this.classList.remove('on')})}
+  }catch(e){console.error('Init error:',e)}
+}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',doInit)}else{doInit()}
+setTimeout(function(){var tb=document.getElementById('amortTb');if(tb&&!tb.children.length){try{renderAmort(amortPageData)}catch(e){console.error('Amort fallback error:',e)}}},300);
+
+/* ===== 关联子表：添加/删除行 ===== */
+var projPersons=[], projAssets=[], projOrgs=[], projArchs=[];
+
+function renderPersonRows(){
+  var h='';
+  for(var i=0;i<projPersons.length;i++){
+    var p=projPersons[i];
+    h+='<tr><td>'+p.id+'</td><td>'+p.name+'</td><td>'+p.major+'</td><td>'+p.title+'</td><td>'+p.utype+'</td><td>'+p.role+'</td><td>'+p.start+'</td><td>'+(p.end||'—')+'</td><td><span class="del-row" onclick="delRow(\'person\','+i+')">删除</span></td></tr>';
+  }
+  document.getElementById('projPersonRows').innerHTML=h;
+}
+function renderAssetRows(){
+  var h='';
+  for(var i=0;i<projAssets.length;i++){
+    var a=projAssets[i];
+    h+='<tr><td>'+a.id+'</td><td>'+a.name+'</td><td>'+a.l1+'-'+a.l2+'</td><td>'+a.purpose+'</td><td><span class="del-row" onclick="delRow(\'asset\','+i+')">删除</span></td></tr>';
+  }
+  document.getElementById('projAssetRows').innerHTML=h;
+}
+function renderOrgRows(){
+  var h='';
+  for(var i=0;i<projOrgs.length;i++){
+    var o=projOrgs[i];
+    h+='<tr><td>'+o.id+'</td><td>'+o.name+'</td><td>'+o.type+'</td><td>'+o.country+'</td><td>'+o.rel+'</td><td><span class="del-row" onclick="delRow(\'org\','+i+')">删除</span></td></tr>';
+  }
+  document.getElementById('projOrgRows').innerHTML=h;
+}
+function renderArchRows(){
+  var h='';
+  for(var i=0;i<projArchs.length;i++){
+    var a=projArchs[i];
+    h+='<tr><td>'+a.id+'</td><td>'+a.name+'</td><td>'+a.big+'-'+a.small+'</td><td>'+a.date+'</td><td>'+(a.attach||'—')+'</td><td><span class="del-row" onclick="delRow(\'arch\','+i+')">删除</span></td></tr>';
+  }
+  document.getElementById('projArchRows').innerHTML=h;
+}
+function delRow(type,idx){
+  if(type==='person'){projPersons.splice(idx,1);renderPersonRows()}
+  else if(type==='asset'){projAssets.splice(idx,1);renderAssetRows()}
+  else if(type==='org'){projOrgs.splice(idx,1);renderOrgRows()}
+  else if(type==='arch'){projArchs.splice(idx,1);renderArchRows()}
+}
+
+/* ===== Picker: 打开选择弹窗并渲染列表 ===== */
+var pendingPersonSetup=null;
+function openPicker(type){
+  if(type==='personPicker'){
+    var tb=document.getElementById('pp_tb');var h='';
+    for(var i=0;i<personData.length;i++){
+      var p=personData[i];
+      h+='<tr><td>'+p.id+'</td><td>'+p.name+'</td><td>'+p.major+'</td><td>'+p.title+'</td><td>'+p.utype+'</td><td><button class="btn btn-sm btn-p" onclick="pickPerson(\''+p.id+'\')">选择</button></td></tr>';
+    }
+    tb.innerHTML=h;openMo('personPicker');
+  } else if(type==='assetPicker'){
+    var tb=document.getElementById('ap_tb');var h='';
+    for(var i=0;i<assetData.length;i++){
+      var a=assetData[i];
+      h+='<tr><td>'+a.id+'</td><td>'+a.name+'</td><td>'+a.l1+'-'+a.l2+'</td><td>'+a.purpose+'</td><td><button class="btn btn-sm btn-p" onclick="pickAsset(\''+a.id+'\')">选择</button></td></tr>';
+    }
+    tb.innerHTML=h;openMo('assetPicker');
+  } else if(type==='orgPicker'){
+    var tb=document.getElementById('op_tb');var h='';
+    for(var i=0;i<orgData.length;i++){
+      var o=orgData[i];
+      h+='<tr><td>'+o.id+'</td><td>'+o.name+'</td><td>'+o.type+'</td><td>'+o.country+'</td><td>'+o.rel+'</td><td><button class="btn btn-sm btn-p" onclick="pickOrg(\''+o.id+'\')">选择</button></td></tr>';
+    }
+    tb.innerHTML=h;openMo('orgPicker');
+  } else if(type==='archPicker'){
+    var tb=document.getElementById('arp_tb');var h='';
+    for(var i=0;i<archData.length;i++){
+      var a=archData[i];
+      h+='<tr><td>'+a.id+'</td><td>'+a.name+'</td><td>'+a.big+'-'+a.small+'</td><td>'+a.date+'</td><td>'+(a.attach||'—')+'</td><td><button class="btn btn-sm btn-p" onclick="pickArch(\''+a.id+'\')">选择</button></td></tr>';
+    }
+    tb.innerHTML=h;openMo('archPicker');
+  }
+}
+
+function pickPerson(id){
+  closeMo('personPicker');
+  var p=null;for(var i=0;i<personData.length;i++){if(personData[i].id===id){p=personData[i];break}}
+  if(!p)return;
+  pendingPersonSetup={id:p.id,name:p.name,major:p.major,title:p.title,utype:p.utype};
+  document.getElementById('ps_id').value=p.id;
+  document.getElementById('ps_name').value=p.name;
+  document.getElementById('ps_role').value='';document.getElementById('ps_start').value='';document.getElementById('ps_end').value='';
+  openMo('personSetup');
+}
+function confirmPersonSetup(){
+  var role=document.getElementById('ps_role').value,start=document.getElementById('ps_start').value;
+  if(!role||!start||!document.getElementById('ps_end').value){alert('请填写研发分工、参与项目起和参与项目止');return;}
+  var item={id:pendingPersonSetup.id,name:pendingPersonSetup.name,major:pendingPersonSetup.major,title:pendingPersonSetup.title,utype:pendingPersonSetup.utype,role:role,start:start,end:document.getElementById('ps_end').value};
+  projPersons.push(item);renderPersonRows();closeMo('personSetup');
+}
+function pickAsset(id){
+  closeMo('assetPicker');
+  var a=null;for(var i=0;i<assetData.length;i++){if(assetData[i].id===id){a=assetData[i];break}}
+  if(!a)return;
+  projAssets.push({id:a.id,name:a.name,l1:a.l1,l2:a.l2,purpose:a.purpose});renderAssetRows();
+}
+function pickOrg(id){
+  closeMo('orgPicker');
+  var o=null;for(var i=0;i<orgData.length;i++){if(orgData[i].id===id){o=orgData[i];break}}
+  if(!o)return;
+  projOrgs.push({id:o.id,name:o.name,type:o.type,country:o.country,rel:o.rel});renderOrgRows();
+}
+function pickArch(id){
+  closeMo('archPicker');
+  var a=null;for(var i=0;i<archData.length;i++){if(archData[i].id===id){a=archData[i];break}}
+  if(!a)return;
+  projArchs.push({id:a.id,name:a.name,big:a.big,small:a.small,date:a.date,attach:a.attach||''});renderArchRows();
+}
+
+function filterPicker(type){
+  if(type==='person'){
+    var q=document.getElementById('pp_search').value.toLowerCase();
+    var filtered=personData.filter(function(p){return p.id.toLowerCase().indexOf(q)>=0||p.name.indexOf(q)>=0});
+    var tb=document.getElementById('pp_tb');var h='';
+    for(var i=0;i<filtered.length;i++){
+      var p=filtered[i];
+      h+='<tr><td>'+p.id+'</td><td>'+p.name+'</td><td>'+p.major+'</td><td>'+p.title+'</td><td>'+p.utype+'</td><td><button class="btn btn-sm btn-p" onclick="pickPerson(\''+p.id+'\')">选择</button></td></tr>';
+    }
+    tb.innerHTML=h;
+  } else if(type==='asset'){
+    var q=document.getElementById('ap_search').value.toLowerCase();
+    var filtered=assetData.filter(function(a){return a.id.toLowerCase().indexOf(q)>=0||a.name.indexOf(q)>=0});
+    var tb=document.getElementById('ap_tb');var h='';
+    for(var i=0;i<filtered.length;i++){
+      var a=filtered[i];
+      h+='<tr><td>'+a.id+'</td><td>'+a.name+'</td><td>'+a.l1+'-'+a.l2+'</td><td>'+a.purpose+'</td><td><button class="btn btn-sm btn-p" onclick="pickAsset(\''+a.id+'\')">选择</button></td></tr>';
+    }
+    tb.innerHTML=h;
+  } else if(type==='org'){
+    var q=document.getElementById('op_search').value.toLowerCase();
+    var filtered=orgData.filter(function(o){return o.id.toLowerCase().indexOf(q)>=0||o.name.indexOf(q)>=0});
+    var tb=document.getElementById('op_tb');var h='';
+    for(var i=0;i<filtered.length;i++){
+      var o=filtered[i];
+      h+='<tr><td>'+o.id+'</td><td>'+o.name+'</td><td>'+o.type+'</td><td>'+o.rel+'</td><td><button class="btn btn-sm btn-p" onclick="pickOrg(\''+o.id+'\')">选择</button></td></tr>';
+    }
+    tb.innerHTML=h;
+  } else if(type==='arch'){
+    var q=document.getElementById('arp_search').value.toLowerCase();
+    var filtered=archData.filter(function(a){return a.id.toLowerCase().indexOf(q)>=0||a.name.indexOf(q)>=0});
+    var tb=document.getElementById('arp_tb');var h='';
+    for(var i=0;i<filtered.length;i++){
+      var a=filtered[i];
+      h+='<tr><td>'+a.id+'</td><td>'+a.name+'</td><td>'+a.big+'-'+a.small+'</td><td>'+a.date+'</td><td>'+(a.attach||'—')+'</td><td><button class="btn btn-sm btn-p" onclick="pickArch(\''+a.id+'\')">选择</button></td></tr>';
+    }
+    tb.innerHTML=h;
+  }
+}
+
+/* backup openProj binding */
+document.addEventListener('DOMContentLoaded',function(){
+  var btn=document.querySelector('[onclick="openProj()"]');
+  if(btn){btn.addEventListener('click',function(e){e.preventDefault();openProj()});}
+});
+
+
+
+function viewAmortDetailFromPage(aid){viewAmortDetail(aid)}
+</script>
+
+<!-- 人员选择弹窗 -->
+<div class="mo" id="personPicker"><div class="ml" style="max-width:800px">
+<div class="ml-h"><h3>选择研发人员</h3><button class="ml-x" onclick="closeMo('personPicker')">✕</button></div>
+<div class="ml-b">
+<div class="qf" style="margin-bottom:12px"><div class="fg"><label>搜索</label><input id="pp_search" placeholder="工号/姓名" oninput="filterPicker('person')"></div></div>
+<table><thead><tr><th>工号</th><th>姓名</th><th>专业</th><th>职称名称</th><th>用工类别</th><th>操作</th></tr></thead><tbody id="pp_tb"></tbody></table>
+</div></div></div>
+
+<!-- 人员设置弹窗（研发分工等） -->
+<div class="mo" id="personSetup"><div class="ml" style="max-width:500px">
+<div class="ml-h"><h3>设置参与信息</h3><button class="ml-x" onclick="closeMo('personSetup')">✕</button></div>
+<div class="ml-b">
+<div class="fg2">
+<div class="fg"><label>工号</label><input id="ps_id" readonly class="ro-green"></div>
+<div class="fg"><label>姓名</label><input id="ps_name" readonly class="ro-green"></div>
+<div class="fg"><label><span class="req">*</span>研发分工</label><select id="ps_role"><option value="">请选择</option><option>研究</option><option>技术</option><option>辅助</option><option>管理</option><option>服务</option><option>其他</option></select></div>
+<div class="fg"><label><span class="req">*</span>参与项目起</label><input type="date" id="ps_start"></div>
+<div class="fg"><label><span class="req">*</span>参与项目止</label><input type="date" id="ps_end"></div>
+</div></div>
+<div class="ml-f"><button class="btn btn-o" onclick="closeMo('personSetup')">取消</button><button class="btn btn-p" onclick="confirmPersonSetup()">确认</button></div>
+</div></div>
+
+<!-- 资产选择弹窗 -->
+<div class="mo" id="assetPicker"><div class="ml" style="max-width:800px">
+<div class="ml-h"><h3>选择研发资产</h3><button class="ml-x" onclick="closeMo('assetPicker')">✕</button></div>
+<div class="ml-b">
+<div class="qf" style="margin-bottom:12px"><div class="fg"><label>搜索</label><input id="ap_search" placeholder="资产编号/名称" oninput="filterPicker('asset')"></div></div>
+<table><thead><tr><th>资产编号</th><th>资产名称</th><th>资产类别</th><th>用途分类</th><th>操作</th></tr></thead><tbody id="ap_tb"></tbody></table>
+</div></div></div>
+
+<!-- 组织选择弹窗 -->
+<div class="mo" id="orgPicker"><div class="ml" style="max-width:800px">
+<div class="ml-h"><h3>选择研发组织</h3><button class="ml-x" onclick="closeMo('orgPicker')">✕</button></div>
+<div class="ml-b">
+<div class="qf" style="margin-bottom:12px"><div class="fg"><label>搜索</label><input id="op_search" placeholder="组织编号/名称" oninput="filterPicker('org')"></div></div>
+<table><thead><tr><th>组织编号</th><th>组织名称</th><th>组织类型</th><th>国别类型</th><th>关联关系</th><th>操作</th></tr></thead><tbody id="op_tb"></tbody></table>
+</div></div></div>
+
+<!-- 档案选择弹窗 -->
+<div class="mo" id="archPicker"><div class="ml" style="max-width:800px">
+<div class="ml-h"><h3>选择项目档案</h3><button class="ml-x" onclick="closeMo('archPicker')">✕</button></div>
+<div class="ml-b">
+<div class="qf" style="margin-bottom:12px"><div class="fg"><label>搜索</label><input id="arp_search" placeholder="档案编号/名称" oninput="filterPicker('arch')"></div></div>
+<table><thead><tr><th>档案编号</th><th>档案名称</th><th>档案类别</th><th>档案日期</th><th>附件</th><th>操作</th></tr></thead><tbody id="arp_tb"></tbody></table>
+</div></div></div>
+
+<!-- 资本化结转弹窗 -->
+<div class="mo" id="moTransfer"><div class="ml" style="max-width:900px">
+<div class="ml-h"><h3 id="transferTitle">资本化结转 — 新增资产</h3><button class="ml-x" onclick="closeMo('moTransfer')">✕</button></div>
+<div class="ml-b">
+<div class="rc">根据项目资本化阶段的辅助账数据，将研发支出结转为无形资产。系统将自动计算加计扣除原值。</div>
+<div class="sec">资产信息</div><div class="fg2">
+<div class="fg"><label><span class="req">*</span>资产编号</label><input id="ft_id"></div>
+<div class="fg"><label><span class="req">*</span>资产名称</label><input id="ft_name"></div>
+<div class="fg"><label>规格型号</label><input id="ft_spec"></div>
+<div class="fg"><label><span class="req">*</span>资产类别一级</label><select id="ft_l1" onchange="onFTL1()"><option value="">请选择</option><option>无形资产</option><option>固定资产</option></select></div>
+<div class="fg"><label><span class="req">*</span>资产类别二级</label><select id="ft_l2"><option value="">请先选择一级</option></select></div>
+<div class="fg"><label>取得方式</label><input id="ft_obtain" value="自研" readonly></div>
+<div class="fg"><label><span class="req">*</span>项目编号</label><input id="ft_proj" readonly class="ro-green"></div>
+<div class="fg"><label><span class="req">*</span>公司名称</label><input id="ft_company" value="海洋科技"></div>
+<div class="fg"><label>使用部门</label><input id="ft_dept"></div>
+<div class="fg"><label>使用状态</label><select id="ft_use"><option>在用</option><option>闲置</option><option>报废</option></select></div>
+</div>
+<div class="sec">价值与摊销信息</div><div class="fg2">
+<div class="fg"><label><span class="req">*</span>加计扣除原值</label><input id="ft_deduction" type="number" readonly class="ro-green"></div>
+<div class="fg"><label>会计原值</label><input id="ft_orig" type="number"></div>
+<div class="fg"><label><span class="req">*</span>残值率(%)</label><input id="ft_res" type="number" value="5"></div>
+<div class="fg"><label><span class="req">*</span>税务摊销期限(月)</label><input id="ft_tlife" type="number" placeholder="如60"></div>
+<div class="fg"><label><span class="req">*</span>税务摊销方法</label><select id="ft_meth"><option value="">请选择</option><option>直线法</option><option>双倍余额递减法</option><option>年数总和法</option></select></div>
+<div class="fg"><label>开始使用日期</label><input id="ft_date" type="date"></div>
+<div class="fg"><label>税会折旧摊销差异</label><select id="ft_diff"><option>是</option><option>否</option></select></div>
+<div class="fg"><label>用途分类</label><select id="ft_purpose"><option>直接研发</option><option>间接研发</option></select></div>
+</div>
+<div class="fg"><label>备注</label><input id="ft_rmk" style="width:100%"></div>
+</div>
+<div class="ml-f"><button class="btn btn-o" onclick="closeMo('moTransfer')">取消</button><button class="btn btn-p" onclick="saveTransfer()">保存并生成摊销计划</button></div>
+</div>
+</div>
+
+<!-- 摊销明细弹窗 -->
+<div class="mo" id="moAmortDetail"><div class="ml" style="max-width:1080px">
+<div class="ml-h"><h3 id="amortDetailTitle">摊销明细</h3><button class="ml-x" onclick="closeMo('moAmortDetail')">✕</button></div>
+<div class="ml-b">
+<div class="fg2" style="margin-bottom:12px">
+<div class="fg"><label>资产编号</label><input id="ad_aid" readonly class="ro-green"></div>
+<div class="fg"><label>资产名称</label><input id="ad_aname" readonly class="ro-green"></div>
+<div class="fg"><label>加计扣除原值</label><input id="ad_deduction" readonly class="ro-green"></div>
+<div class="fg"><label>残值率</label><input id="ad_res" readonly class="ro-green"></div>
+<div class="fg"><label>税务摊销期限</label><input id="ad_tlife" readonly class="ro-green"></div>
+<div class="fg"><label>税务摊销方法</label><input id="ad_meth" readonly class="ro-green"></div>
+</div>
+<div class="sec">摊销明细记录</div>
+<div class="bg" style="margin-bottom:12px"><button class="btn btn-p" onclick="genNextAmort()">⚡ 生成下一期摊销</button><button class="btn btn-o" onclick="genAllAmort()">📋 生成全部摊销计划</button></div>
+<div class="tw"><table><thead><tr>
+<th>摊销期间</th><th>期初净值</th><th>本期摊销额</th><th>累计已摊销</th><th>期末净值</th><th>状态</th><th>操作</th>
+</tr></thead><tbody id="amortDetailTb"></tbody></table></div>
+</div>
+<div class="ml-f"><button class="btn btn-o" onclick="closeMo('moAmortDetail')">关闭</button></div>
+</div>
+</div>
+
+<!-- 摊销确认弹窗 -->
+<div class="mo" id="moAmortConfirm"><div class="ml" style="max-width:420px">
+<div class="ml-h"><h3>确认摊销</h3><button class="ml-x" onclick="cancelAmortConfirm()">✕</button></div>
+<div class="ml-b">
+<div class="rc">确认摊销？摊销后不可撤回</div>
+</div>
+<div class="ml-f"><button class="btn btn-o" onclick="cancelAmortConfirm()">取消</button><button class="btn btn-p" onclick="confirmAmortDone()">确认</button></div>
+</div></div>
+
+<!-- 档案操作日志弹窗 -->
+<div class="mo" id="moArchLog"><div class="ml" style="max-width:700px">
+<div class="ml-h"><h3 id="archLogTitle">操作日志</h3><button class="ml-x" onclick="closeMo('moArchLog')">✕</button></div>
+<div class="ml-b">
+<table><thead><tr><th>操作事项</th><th>操作人</th><th>操作原因</th><th>操作时间</th></tr></thead><tbody id="archLogTb"></tbody></table>
+</div>
+<div class="ml-f"><button class="btn btn-o" onclick="closeMo('moArchLog')">关闭</button></div>
+</div></div>
+
+<!-- 档案编辑原因弹窗 -->
+<div class="mo" id="moArchEditReason"><div class="ml" style="max-width:500px">
+<div class="ml-h"><h3>编辑原因</h3><button class="ml-x" onclick="closeMo('moArchEditReason')">✕</button></div>
+<div class="ml-b">
+<div class="fg" style="flex-direction:column">
+<label>编辑原因 <span class="req">*</span></label>
+<textarea id="archEditReason" maxlength="100" placeholder="请输入编辑原因（最多100个字符）" style="width:100%;min-height:80px" oninput="document.getElementById('archEditCharCount').textContent=this.value.length+'/100'"></textarea>
+<div style="text-align:right;font-size:12px;color:#999"><span id="archEditCharCount">0/100</span></div>
+</div>
+</div>
+<div class="ml-f"><button class="btn btn-o" onclick="closeMo('moArchEditReason')">取消</button><button class="btn btn-p" onclick="confirmArchEdit()">确定保存</button></div>
+</div></div>
+
+
+<!-- 数据导入弹窗 -->
+<div class="mo" id="moImport"><div class="ml" style="max-width:500px">
+<div class="ml-h"><h3 id="importTitle">数据导入</h3><button class="ml-x" onclick="closeMo('moImport')">✕</button></div>
+<div class="ml-b">
+<div class="rc">仅能上传一个文件，最大200M</div>
+<div style="border:2px dashed var(--g300);border-radius:8px;padding:30px;text-align:center;margin:12px 0;cursor:pointer" onclick="document.getElementById('importFile').click()">
+<div style="font-size:28px;margin-bottom:8px">📁</div>
+<div style="color:var(--g600);font-size:13px">点击上传文件或拖拽到此处</div>
+<input type="file" id="importFile" style="display:none" accept=".xlsx,.xls,.csv">
+</div>
+<div style="margin-top:12px"><button class="btn btn-o" onclick="alert('模板下载成功')">📥 下载模板</button></div>
+</div>
+<div class="ml-f"><button class="btn btn-o" onclick="closeMo('moImport')">取消</button><button class="btn btn-p" onclick="alert('导入成功');closeMo('moImport')">确认导入</button></div>
+</div></div>
+
+</body>
+</html>
