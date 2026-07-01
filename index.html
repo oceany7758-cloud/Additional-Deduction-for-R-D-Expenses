@@ -666,7 +666,7 @@ function renderAsset(d){
   var h='';
   for(var i=0;i<d.length;i++){
     var a=d[i];
-    h+='<tr><td>'+a.company+'</td><td>'+a.id+'</td><td>'+a.name+'</td><td>'+a.spec+'</td><td>'+a.l1+'</td><td>'+a.l2+'</td><td>'+a.obtain+'</td><td>'+projDisplayName(a.proj)+'</td><td>'+a.dept+'</td><td>'+a.use+'</td><td style="text-align:right">'+fmt(a.orig)+'</td><td>'+a.res+'%</td><td>'+a.life+'年</td><td>'+a.meth+'</td><td>'+a.date+'</td><td><span class="t '+(a.diff==='是'?'t-r':'t-g')+'">'+a.diff+'</span></td><td>'+a.purpose+'</td><td>'+a.rmk+'</td><td><button class="btn btn-sm btn-o" onclick="editAsset(\''+a.id+'\')">编辑</button>  <button class="btn btn-sm btn-o" style="color:var(--err);border-color:var(--err)" onclick="delAsset(\''+a.id+'\')">删除</button></td></tr>';
+    h+='<tr><td>'+a.company+'</td><td>'+a.id+'</td><td>'+a.name+'</td><td>'+a.spec+'</td><td>'+a.l1+'</td><td>'+a.l2+'</td><td>'+a.obtain+'</td><td>'+a.proj+'</td><td>'+a.dept+'</td><td>'+a.use+'</td><td style="text-align:right">'+fmt(a.orig)+'</td><td>'+a.res+'%</td><td>'+a.life+'年</td><td>'+a.meth+'</td><td>'+a.date+'</td><td><span class="t '+(a.diff==='是'?'t-r':'t-g')+'">'+a.diff+'</span></td><td>'+a.purpose+'</td><td>'+a.rmk+'</td><td><button class="btn btn-sm btn-o" onclick="editAsset(\''+a.id+'\')">编辑</button>  <button class="btn btn-sm btn-o" style="color:var(--err);border-color:var(--err)" onclick="delAsset(\''+a.id+'\')">删除</button></td></tr>';
   }
   document.getElementById('assetTb').innerHTML=h;
 }
@@ -842,7 +842,7 @@ function renderArch(d){
   for(var i=0;i<d.length;i++){
     var a=d[i];
     var purp='';for(var j=0;j<a.purpose.length;j++){purp+='<span class="t t-g" style="margin:1px">'+a.purpose[j]+'</span> '}
-    h+='<tr><td>'+a.company+'</td><td>'+a.id+'</td><td>'+a.name+'</td><td><span class="t t-b">'+a.big+'</span></td><td>'+a.small+'</td><td>'+(a.src||'—')+'</td><td>'+a.date+'</td><td>'+projDisplayName(a.proj)+'</td><td>'+a.dept+'</td><td>'+a.attach+'</td><td>'+purp+'</td><td>'+a.media+'</td><td>'+seltag(a.sec)+'</td><td>'+a.archivist+'</td><td>'+(a.archiveDate||'—')+'</td><td>'+(a.createMode==='系统创建'?'<span class="t t-b">系统创建</span>':'<span class="t t-x">人工创建</span>')+'</td><td><button class="btn btn-sm btn-o" onclick="viewArchLogs(\''+a.id+'\')">日志</button> <button class="btn btn-sm btn-o" onclick="editArch(\''+a.id+'\')">编辑</button>'+(a.createMode==='人工创建'?' <button class="btn btn-sm btn-o" style="color:var(--err);border-color:var(--err)" onclick="delArch(\'"+a.id+"\')">删除</button>':'')+'</td></tr>';
+    h+='<tr><td>'+a.company+'</td><td>'+a.id+'</td><td>'+a.name+'</td><td><span class="t t-b">'+a.big+'</span></td><td>'+a.small+'</td><td>'+(a.src||'—')+'</td><td>'+a.date+'</td><td>'+a.proj+'</td><td>'+a.dept+'</td><td>'+a.attach+'</td><td>'+purp+'</td><td>'+a.media+'</td><td>'+seltag(a.sec)+'</td><td>'+a.archivist+'</td><td>'+(a.archiveDate||'—')+'</td><td>'+(a.createMode==='系统创建'?'<span class="t t-b">系统创建</span>':'<span class="t t-x">人工创建</span>')+'</td><td><button class="btn btn-sm btn-o" onclick="viewArchLogs(\''+a.id+'\')">日志</button> <button class="btn btn-sm btn-o" onclick="editArch(\''+a.id+'\')">编辑</button>'+(a.createMode==='人工创建'?' <button class="btn btn-sm btn-o" style="color:var(--err);border-color:var(--err)" onclick="delArch(\'"+a.id+"\')">删除</button>':'')+'</td></tr>';
   }
   document.getElementById('archTb').innerHTML=h;
 }
